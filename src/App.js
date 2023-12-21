@@ -8,13 +8,13 @@ const randomColor = () => {
     .toString(16)
     .padStart(6, '0');
   return `#${hex_color}`;
-}
+};
 
-let initialSwatches = [
-  {id: 0, color: randomColor(), parent: null},
-]
+let initialSwatches = {
+  0: {color: randomColor(), parentId: null},
+};
 
-let nextId = initialSwatches.length;
+let nextId = Object.keys(initialSwatches).length;
 
 export default function App() {
   const [lastColor, setLastColor] = useState("#000000");
@@ -22,27 +22,19 @@ export default function App() {
 
 
   const handleSwatchClick = (id) => {
-    let newColor = randomColor()
-    setLastColor(newColor)
+    let newColor = randomColor();
+    setLastColor(newColor);
 
-    // TODO: swatches should be an object
-    //       also causing parent/child updating to happen out of order
-    const nextSwatches = swatches.map(swatch => {
-      if (swatch.id === id) {
-        return {
-          ...swatch,
-          color: newColor
-        };
-      } else if (swatch.parent?.id === id) {
-        return {
-          ...swatch,
-          parent: swatches[id]
-        };
-      }
-      return swatch;
-    });
+    const nextSwatches = {
+      ...swatches,
+      [id]: {
+        ...swatches[id],
+        color: newColor,
+      },
+    }
+
     setSwatches(() => nextSwatches);
-  }
+  };
 
 
   // todo separate text tags from swatch components
@@ -55,27 +47,29 @@ export default function App() {
       }}>Generate an entire color palette from a single input!</h2>
 
       <button onClick={() => {
-        setSwatches([
+        setSwatches({
           ...swatches,
-          { id: nextId++, color: randomColor(), parent: swatches[0] }
-        ]);
+          // todo: hardcoded parentId
+          [nextId++]: { color: "#00ff00", parentId: 0 }
+        });
       }}>Add Swatch</button>
 
-      {swatches.map(swatch => (
-        <Swatch key={swatch.id} id={swatch.id} color={swatch.color} parent={swatch.parent} onClick={handleSwatchClick} />
+      {Object.keys(swatches).map(id => (
+        <Swatch key={id} id={id} swatches={swatches} onClick={handleSwatchClick} />
       ))}
     </div>
   );
 }
 
 
-function Swatch({ id, color, parent, onClick }) {
+function Swatch({ id, swatches, onClick }) {
+  const swatch = swatches[id]
   return (
     <div
       style={{
         width: '50px',
         height: '50px',
-        backgroundColor: parent?.color || color,
+        backgroundColor: swatches[swatch.parentId]?.color || swatch.color,
         cursor: 'pointer',
       }}
       onClick={() => onClick(id)}

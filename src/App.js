@@ -38,7 +38,7 @@ export default function App() {
   // todo separate text tags from swatch components
   return (
     <div className="App">
-      <h1>Instint</h1>
+      <h1>iNSTiNT</h1>
       <h2
         style={{
           color: lastColor,
@@ -48,11 +48,13 @@ export default function App() {
       </h2>
 
       <button
+        className="button is-primary"
         onClick={() => {
+          // todo: hardcoded attributes
+          const newSwatch = { color: "#00ff00", parentId: 0 };
           setSwatches({
             ...swatches,
-            // todo: hardcoded parentId
-            [nextId++]: { color: "#00ff00", parentId: 0 },
+            [nextId++]: newSwatch,
           });
         }}
       >

@@ -3,18 +3,14 @@ import tc from "tinycolor";
 import { randomColor, getContrastLuminance } from "./utils.js"
 
 export default function App() {
-  const initialSwatches = {
+  const [lastColor, setLastColor] = useState("#000000");
+  const [swatches, setSwatches] = useState({
     0: { color: randomColor(), parentId: null, contrast: 1 },
     1: { color: randomColor(), parentId: 0, contrast: 3 },
     2: { color: randomColor(), parentId: 0, contrast: 4.5 },
-  };
+  });
 
-  // TODO looks like this is broken from being placed below
-  //      other definitions, as expected
-  const [lastColor, setLastColor] = useState("#000000");
-  const [swatches, setSwatches] = useState(initialSwatches);
-
-  let nextId = Object.keys(initialSwatches).length;
+  let nextId = Object.keys(swatches).length;
 
   const handleSwatchClick = (id) => {
     let newColor = randomColor();

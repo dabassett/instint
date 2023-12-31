@@ -1,16 +1,25 @@
 import tc from "tinycolor";
 
+// this equates to the midpoint for percieved luminance on the WL scale
+//  and is the best test to sort light and dark colors
+const MID_RELATIVE_LUMINANCE = 0.1791104;
+
 // the maximum contrast [1, 21] that this color can achieve
 export function maxContrast(tiny) {
   return Math.max(tc.readability(tiny, "black"), tc.readability(tiny, "white"));
 }
 
-// TODO: refactor, remove magic contrast number, limit loops, document
-export function randomColor() {
+// TODO: refactor, limit loops, document
+//
+//       this will be called with user inputs, clamp the param
+//
+//       instead of looping, calculate the acceptable WL range from
+//        minRequiredContrast and make a random selection from that
+export function randomColor(minPossibleContrast = 7) {
   let color;
   do {
     color = tc.random();
-  } while (maxContrast(color) < 7);
+  } while (maxContrast(color) < minPossibleContrast);
   return color;
 }
 
@@ -27,17 +36,21 @@ export function getContrastLuminance(tiny, contrast) {
   let out = {};
   out.light = normalize01(contrast * (hswl.wl + 0.05) - 0.05);
   out.dark = normalize01((hswl.wl + 0.05) / contrast - 0.05);
-  // this is the midpoint for brightness on the WL scale and sets the cutoff
-  //  for choosing a brighter or darker color
-  if (hswl.wl < 0.1791104) {
-    out.best = out.light;
-  } else {
-    out.best = out.dark;
-  }
+
+  out.best = isLight(hswl.wl) ? out.dark : out.light;
+
   return out;
 }
 
 // clamp saturation or luminance to valid range [0, 1]
 export function normalize01(attr) {
   return Math.max(0, Math.min(attr || 0, 1));
+}
+
+export function isLight(luminance) {
+  return luminance >= MID_RELATIVE_LUMINANCE;
+}
+
+export function isDark(luminance) {
+  return isLight(luminance);
 }

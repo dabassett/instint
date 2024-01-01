@@ -13,17 +13,58 @@ export default function App() {
     1: { color: randomColor(), parentId: 0, contrast: 3 },
     2: { color: randomColor(), parentId: 0, contrast: 4.5 },
   });
+  const [hueSliderValue, setHueSliderValue] = useState(50);
+  const [satSliderValue, setSatSliderValue] = useState(50);
+  const [lumSliderValue, setLumSliderValue] = useState(50);
 
   let nextId = Object.keys(swatches).length;
 
   const handleSwatchClick = (id) => {
-    let newColor = randomColor();
+    const newColor = randomColor();
+    const newHswl = newColor.toHswl();
+    console.log(newColor.toHswl())
     setLastColor(newColor.toHexString());
+    updateSwatchColor(id, newColor);
+    setHueSliderValue(newHswl.h / 3.6);
+    setSatSliderValue(newHswl.s * 100);
+    setLumSliderValue(newHswl.wl * 100);
+  };
 
+  const handleHueSliderChange = (event, newValue) => {
+    setHueSliderValue(newValue);
+
+    // calculate new color
+    const newHswl = {...swatches[0].color.getOriginalInput(), h: newValue * 3.6};
+    const newColor = tinycolor(newHswl);
+
+    updateSwatchColor(0, newColor);
+  };
+
+  const handleSatSliderChange = (event, newValue) => {
+    setSatSliderValue(newValue);
+
+    // calculate new color
+    const newHswl = {...swatches[0].color.getOriginalInput(), s: newValue / 100};
+    const newColor = tinycolor(newHswl);
+
+    updateSwatchColor(0, newColor);
+  };
+
+  const handleLumSliderChange = (event, newValue) => {
+    setLumSliderValue(newValue);
+
+    // calculate new color
+    const newHswl = {...swatches[0].color.getOriginalInput(), wl: newValue / 100};
+    const newColor = tinycolor(newHswl);
+
+    updateSwatchColor(0, newColor);
+  };
+
+  const updateSwatchColor = (swatchId, newColor) => {
     const nextSwatches = {
       ...swatches,
-      [id]: {
-        ...swatches[id],
+      [swatchId]: {
+        ...swatches[swatchId],
         color: newColor,
       },
     };
@@ -51,11 +92,6 @@ export default function App() {
 
     return `linear-gradient(90deg, ${stops.join(", ")})`;
   };
-
-  // TODO refactor
-  // calculate color slider thumb positions
-  const hswl = swatches[0].color.toHswl();
-  const [hVal, sVal, wlVal] = [hswl.h / 3.6, hswl.s * 100, hswl.wl * 100];
 
   // todo separate text tags from swatch components
   return (
@@ -103,9 +139,9 @@ export default function App() {
         );
       })}
 
-      <GradientSlider value={hVal} gradient={getGradient(swatches[0], "h")} />
-      <GradientSlider value={sVal} gradient={getGradient(swatches[0], "s")} />
-      <GradientSlider value={wlVal} gradient={getGradient(swatches[0], "wl")} />
+      <GradientSlider value={hueSliderValue} gradient={getGradient(swatches[0], "h")} onChange={handleHueSliderChange} />
+      <GradientSlider value={satSliderValue} gradient={getGradient(swatches[0], "s")} onChange={handleSatSliderChange} />
+      <GradientSlider value={lumSliderValue} gradient={getGradient(swatches[0], "wl")} onChange={handleLumSliderChange} />
     </div>
   );
 }

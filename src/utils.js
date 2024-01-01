@@ -1,4 +1,4 @@
-import tc from "tinycolor";
+import tinycolor from "tinycolor";
 
 // this equates to the midpoint for percieved luminance on the WL scale
 //  and is the best test to sort light and dark colors
@@ -6,7 +6,10 @@ const MID_RELATIVE_LUMINANCE = 0.1791104;
 
 // the maximum contrast [1, 21] that this color can achieve
 export function maxContrast(tiny) {
-  return Math.max(tc.readability(tiny, "black"), tc.readability(tiny, "white"));
+  return Math.max(
+    tinycolor.readability(tiny, "black"),
+    tinycolor.readability(tiny, "white"),
+  );
 }
 
 // TODO: refactor, limit loops, document
@@ -15,12 +18,15 @@ export function maxContrast(tiny) {
 //
 //       instead of looping, calculate the acceptable WL range from
 //        minRequiredContrast and make a random selection from that
+//
+//       returning hswl to try to prevent color drift, switching to
+//       hswl random would simplify this issue
 export function randomColor(minPossibleContrast = 7) {
   let color;
   do {
-    color = tc.random();
+    color = tinycolor.random();
   } while (maxContrast(color) < minPossibleContrast);
-  return color;
+  return tinycolor(color.toHswl());
 }
 
 // returns an object with the luminance needed to achieve the desired
@@ -32,7 +38,7 @@ export function randomColor(minPossibleContrast = 7) {
 export function getContrastLuminance(tiny, contrast) {
   // the variable shuffling fixes color drift that would otherwise occur when
   //  tinycolor converts between formats
-  let hswl = tc(tiny.getOriginalInput()).toHswl();
+  let hswl = tinycolor(tiny.getOriginalInput()).toHswl();
   let out = {};
   out.light = normalize01(contrast * (hswl.wl + 0.05) - 0.05);
   out.dark = normalize01((hswl.wl + 0.05) / contrast - 0.05);

@@ -19,6 +19,6 @@ const GradientSlider = styled(Slider)(({ theme, gradient }) => ({
   },
 }));
 
-export default function StyledCustomization({ value, gradient }) {
-  return <GradientSlider value={value} track={false} gradient={gradient} />;
+export default function StyledCustomization({ value, gradient, onChange }) {
+  return <GradientSlider value={value} track={false} gradient={gradient} onChange={onChange} />;
 }

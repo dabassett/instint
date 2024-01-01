@@ -6,6 +6,10 @@ import GradientSlider from "./GradientSlider.js";
 // TODO install material icons
 //      https://mui.com/material-ui/getting-started/installation/#icons
 
+// TODO fixes
+//       color drifting issues - stop conversions with tinycolor, put HSWL attributes in state instead
+//       loss of hue downstream value when sat or lum are 0 - ^^^should also fix
+
 export default function App() {
   const [lastColor, setLastColor] = useState("#000000");
   const [swatches, setSwatches] = useState({
@@ -22,7 +26,7 @@ export default function App() {
   const handleSwatchClick = (id) => {
     const newColor = randomColor();
     const newHswl = newColor.toHswl();
-    console.log(newColor.toHswl())
+
     setLastColor(newColor.toHexString());
     updateSwatchColor(id, newColor);
     setHueSliderValue(newHswl.h / 3.6);

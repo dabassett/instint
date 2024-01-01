@@ -1,6 +1,10 @@
 import { useState } from "react";
-import tc from "tinycolor";
-import { randomColor, getContrastLuminance } from "./utils.js"
+import tinycolor from "tinycolor";
+import { randomColor, getContrastLuminance } from "./utils.js";
+import GradientSlider from "./GradientSlider.js";
+
+// TODO install material icons
+//      https://mui.com/material-ui/getting-started/installation/#icons
 
 export default function App() {
   const [lastColor, setLastColor] = useState("#000000");
@@ -26,6 +30,32 @@ export default function App() {
 
     setSwatches(() => nextSwatches);
   };
+
+  // generate a css gradient by varying an attribute of an HSWL
+  //  color while fixing the other attributes
+  //
+  // h == hue, s == saturation, wl == luminance
+  const getGradient = (swatch, attr = "wl", numStops = 17) => {
+    const hswl = swatch.color.toHswl();
+    // multiplier to correct the range based on the attribute selected
+    const multiple = attr === "h" ? 360 : 1;
+
+    // create the gradient stops in HSWL-space, this makes a nonlinear
+    //  gradient that accurately represents the final computed color
+    let stops = [];
+    for (let i = 0; i < numStops; i++) {
+      const progress = i / (numStops - 1);
+      const colorStop = tinycolor({ ...hswl, [attr]: progress * multiple});
+      stops.push(`${colorStop.toHexString()} ${progress * 100}%`);
+    }
+
+    return `linear-gradient(90deg, ${stops.join(", ")})`;
+  };
+
+  // TODO refactor
+  // calculate color slider thumb positions
+  const hswl = swatches[0].color.toHswl();
+  const [hVal, sVal, wlVal] = [hswl.h / 3.6, hswl.s * 100, hswl.wl * 100];
 
   // todo separate text tags from swatch components
   return (
@@ -64,7 +94,7 @@ export default function App() {
         if (parentSwatch?.color && swatch.contrast > 1) {
           const lum = getContrastLuminance(tiny, swatch.contrast).best;
           const hswl = { ...tiny.toHswl(), wl: lum };
-          color = tc(hswl).toHexString();
+          color = tinycolor(hswl).toHexString();
         }
 
         return (
@@ -72,6 +102,10 @@ export default function App() {
           <Swatch key={id} id={id} color={color} onClick={handleSwatchClick} />
         );
       })}
+
+      <GradientSlider value={hVal} gradient={getGradient(swatches[0], "h")} />
+      <GradientSlider value={sVal} gradient={getGradient(swatches[0], "s")} />
+      <GradientSlider value={wlVal} gradient={getGradient(swatches[0], "wl")} />
     </div>
   );
 }

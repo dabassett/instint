@@ -6,16 +6,12 @@ import GradientSlider from "./GradientSlider.js";
 // TODO install material icons
 //      https://mui.com/material-ui/getting-started/installation/#icons
 
-// TODO fixes
-//       color drifting issues - stop conversions with tinycolor, put HSWL attributes in state instead
-//       loss of hue downstream value when sat or lum are 0 - ^^^should also fix
-
 export default function App() {
   const [lastColor, setLastColor] = useState("#000000");
   const [swatches, setSwatches] = useState({
-    0: { color: randomColor(), parentId: null, contrast: 1 },
-    1: { color: randomColor(), parentId: 0, contrast: 3 },
-    2: { color: randomColor(), parentId: 0, contrast: 4.5 },
+    0: { color: randomColor().toHswl(), parentId: null, contrast: 1 },
+    1: { color: randomColor().toHswl(), parentId: 0, contrast: 3 },
+    2: { color: randomColor().toHswl(), parentId: 0, contrast: 4.5 },
   });
   const [hueSliderValue, setHueSliderValue] = useState(50);
   const [satSliderValue, setSatSliderValue] = useState(50);
@@ -28,7 +24,7 @@ export default function App() {
     const newHswl = newColor.toHswl();
 
     setLastColor(newColor.toHexString());
-    updateSwatchColor(id, newColor);
+    updateSwatchColor(id, newHswl);
     setHueSliderValue(newHswl.h / 3.6);
     setSatSliderValue(newHswl.s * 100);
     setLumSliderValue(newHswl.wl * 100);
@@ -38,38 +34,38 @@ export default function App() {
     setHueSliderValue(newValue);
 
     // calculate new color
-    const newHswl = {...swatches[0].color.getOriginalInput(), h: newValue * 3.6};
+    const newHswl = { ...swatches[0].color, h: newValue * 3.6 };
     const newColor = tinycolor(newHswl);
 
-    updateSwatchColor(0, newColor);
+    updateSwatchColor(0, newHswl);
   };
 
   const handleSatSliderChange = (event, newValue) => {
     setSatSliderValue(newValue);
 
     // calculate new color
-    const newHswl = {...swatches[0].color.getOriginalInput(), s: newValue / 100};
+    const newHswl = { ...swatches[0].color, s: newValue / 100 };
     const newColor = tinycolor(newHswl);
 
-    updateSwatchColor(0, newColor);
+    updateSwatchColor(0, newHswl);
   };
 
   const handleLumSliderChange = (event, newValue) => {
     setLumSliderValue(newValue);
 
     // calculate new color
-    const newHswl = {...swatches[0].color.getOriginalInput(), wl: newValue / 100};
+    const newHswl = { ...swatches[0].color, wl: newValue / 100 };
     const newColor = tinycolor(newHswl);
 
-    updateSwatchColor(0, newColor);
+    updateSwatchColor(0, newHswl);
   };
 
-  const updateSwatchColor = (swatchId, newColor) => {
+  const updateSwatchColor = (swatchId, newHswl) => {
     const nextSwatches = {
       ...swatches,
       [swatchId]: {
         ...swatches[swatchId],
-        color: newColor,
+        color: newHswl,
       },
     };
 
@@ -81,7 +77,7 @@ export default function App() {
   //
   // h == hue, s == saturation, wl == luminance
   const getGradient = (swatch, attr = "wl", numStops = 17) => {
-    const hswl = swatch.color.toHswl();
+    const hswl = swatch.color;
     // multiplier to correct the range based on the attribute selected
     const multiple = attr === "h" ? 360 : 1;
 
@@ -90,7 +86,7 @@ export default function App() {
     let stops = [];
     for (let i = 0; i < numStops; i++) {
       const progress = i / (numStops - 1);
-      const colorStop = tinycolor({ ...hswl, [attr]: progress * multiple});
+      const colorStop = tinycolor({ ...hswl, [attr]: progress * multiple });
       stops.push(`${colorStop.toHexString()} ${progress * 100}%`);
     }
 
@@ -127,14 +123,14 @@ export default function App() {
       {Object.keys(swatches).map((id) => {
         const swatch = swatches[id];
         const parentSwatch = swatches[swatch.parentId];
-        const tiny = parentSwatch?.color || swatch.color;
+        const hswl = parentSwatch?.color || swatch.color;
+        const tiny = tinycolor(hswl);
         let color = tiny.toHexString();
 
         // calculate a new color when the swatch is set to contrast its parent
         if (parentSwatch?.color && swatch.contrast > 1) {
           const lum = getContrastLuminance(tiny, swatch.contrast).best;
-          const hswl = { ...tiny.toHswl(), wl: lum };
-          color = tinycolor(hswl).toHexString();
+          color = tinycolor({ ...hswl, wl: lum }).toHexString();
         }
 
         return (
@@ -143,9 +139,21 @@ export default function App() {
         );
       })}
 
-      <GradientSlider value={hueSliderValue} gradient={getGradient(swatches[0], "h")} onChange={handleHueSliderChange} />
-      <GradientSlider value={satSliderValue} gradient={getGradient(swatches[0], "s")} onChange={handleSatSliderChange} />
-      <GradientSlider value={lumSliderValue} gradient={getGradient(swatches[0], "wl")} onChange={handleLumSliderChange} />
+      <GradientSlider
+        value={hueSliderValue}
+        gradient={getGradient(swatches[0], "h")}
+        onChange={handleHueSliderChange}
+      />
+      <GradientSlider
+        value={satSliderValue}
+        gradient={getGradient(swatches[0], "s")}
+        onChange={handleSatSliderChange}
+      />
+      <GradientSlider
+        value={lumSliderValue}
+        gradient={getGradient(swatches[0], "wl")}
+        onChange={handleLumSliderChange}
+      />
     </div>
   );
 }

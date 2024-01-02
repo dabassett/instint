@@ -1,17 +1,30 @@
 import { useState } from "react";
 import tinycolor from "tinycolor";
-import { randomColor, getContrastLuminance } from "./utils.js";
+import { randomColor, derive } from "./utils.js";
 import GradientSlider from "./GradientSlider.js";
-
+import Button from "@mui/material/Button";
+import Box from "@mui/material/Box";
 // TODO install material icons
 //      https://mui.com/material-ui/getting-started/installation/#icons
 
+// TODO when adding derived colors and reusing the input sliders in different
+///      contexts, store and retrieve all values in state so that each swatch
+//       retains its memory and it's easier for the user to experiment without
+//       needing to worry about losing previous settings
+
+// TODO put all swatch props in an object and pass to swatch component. Look
+//       up the best practice for that
+
+// TODO if I get around to adding inheritance chains, don't forget to traverse
+//       up the tree to check for inheritance loops
+
 export default function App() {
   const [lastColor, setLastColor] = useState("#000000");
+  const [selectedSwatch, setSelectedSwatch] = useState(0);
   const [swatches, setSwatches] = useState({
-    0: { color: randomColor().toHswl(), parentId: null, contrast: 1 },
-    1: { color: randomColor().toHswl(), parentId: 0, contrast: 3 },
-    2: { color: randomColor().toHswl(), parentId: 0, contrast: 4.5 },
+    0: { color: randomColor(), parentId: null, contrast: 1 },
+    1: { color: randomColor(), parentId: 0, contrast: 3 },
+    2: { color: randomColor(), parentId: 0, contrast: 4.5 },
   });
   const [hueSliderValue, setHueSliderValue] = useState(50);
   const [satSliderValue, setSatSliderValue] = useState(50);
@@ -20,10 +33,10 @@ export default function App() {
   let nextId = Object.keys(swatches).length;
 
   const handleSwatchClick = (id) => {
-    const newColor = randomColor();
-    const newHswl = newColor.toHswl();
+    const newHswl = randomColor();
 
-    setLastColor(newColor.toHexString());
+    setSelectedSwatch(id);
+    //setLastColor(newColor.toHexString());
     updateSwatchColor(id, newHswl);
     setHueSliderValue(newHswl.h / 3.6);
     setSatSliderValue(newHswl.s * 100);
@@ -32,31 +45,19 @@ export default function App() {
 
   const handleHueSliderChange = (event, newValue) => {
     setHueSliderValue(newValue);
-
-    // calculate new color
     const newHswl = { ...swatches[0].color, h: newValue * 3.6 };
-    const newColor = tinycolor(newHswl);
-
     updateSwatchColor(0, newHswl);
   };
 
   const handleSatSliderChange = (event, newValue) => {
     setSatSliderValue(newValue);
-
-    // calculate new color
     const newHswl = { ...swatches[0].color, s: newValue / 100 };
-    const newColor = tinycolor(newHswl);
-
     updateSwatchColor(0, newHswl);
   };
 
   const handleLumSliderChange = (event, newValue) => {
     setLumSliderValue(newValue);
-
-    // calculate new color
     const newHswl = { ...swatches[0].color, wl: newValue / 100 };
-    const newColor = tinycolor(newHswl);
-
     updateSwatchColor(0, newHswl);
   };
 
@@ -106,8 +107,8 @@ export default function App() {
       </h2>
 
       {/* create new swatch button */}
-      <button
-        className="button is-primary"
+      <Button
+        variant="contained"
         onClick={() => {
           // todo: hardcoded attributes
           const newSwatch = { color: randomColor(), parentId: 0, contrast: 7 };
@@ -118,20 +119,16 @@ export default function App() {
         }}
       >
         Add Swatch
-      </button>
+      </Button>
 
       {Object.keys(swatches).map((id) => {
         const swatch = swatches[id];
         const parentSwatch = swatches[swatch.parentId];
-        const hswl = parentSwatch?.color || swatch.color;
-        const tiny = tinycolor(hswl);
-        let color = tiny.toHexString();
-
-        // calculate a new color when the swatch is set to contrast its parent
-        if (parentSwatch?.color && swatch.contrast > 1) {
-          const lum = getContrastLuminance(tiny, swatch.contrast).best;
-          color = tinycolor({ ...hswl, wl: lum }).toHexString();
-        }
+        const hswl = parentSwatch?.color
+          ? derive(parentSwatch?.color, { contrast: swatch.contrast })
+          : swatch.color;
+        // copies hswl to prevent tinycolor from mutating it
+        const color = tinycolor({...hswl}).toHexString();
 
         return (
           // TODO the key should be a uuid, (immutable, unique) to prevent unnecessary rerenders

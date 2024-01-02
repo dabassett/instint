@@ -1,6 +1,5 @@
 import { useState } from "react";
-import tinycolor from "tinycolor";
-import { randomColor, derive } from "./utils.js";
+import { randomColor, derive, toHex } from "./utils.js";
 import GradientSlider from "./GradientSlider.js";
 import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
@@ -36,7 +35,6 @@ export default function App() {
     const newHswl = randomColor();
 
     setSelectedSwatch(id);
-    //setLastColor(newColor.toHexString());
     updateSwatchColor(id, newHswl);
     setHueSliderValue(newHswl.h / 3.6);
     setSatSliderValue(newHswl.s * 100);
@@ -87,8 +85,8 @@ export default function App() {
     let stops = [];
     for (let i = 0; i < numStops; i++) {
       const progress = i / (numStops - 1);
-      const colorStop = tinycolor({ ...hswl, [attr]: progress * multiple });
-      stops.push(`${colorStop.toHexString()} ${progress * 100}%`);
+      const colorStop = toHex({ ...hswl, [attr]: progress * multiple });
+      stops.push(`${colorStop} ${progress * 100}%`);
     }
 
     return `linear-gradient(90deg, ${stops.join(", ")})`;
@@ -127,8 +125,7 @@ export default function App() {
         const hswl = parentSwatch?.color
           ? derive(parentSwatch?.color, { contrast: swatch.contrast })
           : swatch.color;
-        // copies hswl to prevent tinycolor from mutating it
-        const color = tinycolor({...hswl}).toHexString();
+        const color = toHex(hswl);
 
         return (
           // TODO the key should be a uuid, (immutable, unique) to prevent unnecessary rerenders

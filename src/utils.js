@@ -91,6 +91,13 @@ export function getContrastLuminance(hswl, contrast) {
   return out;
 }
 
+// convert the HSWL object into a hex code string for CSS
+// note: copies the input to prevent tinycolor from mutating it
+export function toHex(hswl) {
+  // copies hswl to prevent tinycolor from mutating it
+  return tinycolor({ ...hswl }).toHexString();
+}
+
 // clamp the hswl attributes to valid values
 // returns other attributes unaltered
 export function normalize(hswl) {

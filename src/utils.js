@@ -57,21 +57,27 @@ export function maxContrast(tiny) {
   );
 }
 
-// TODO: refactor, limit loops, document
+// returns a random color in the HSWL color space that also
+//  meets specified display criteria
 //
-//       this will be called with user inputs, clamp the param
-//
-//       instead of looping, calculate the acceptable WL range from
-//        minRequiredContrast and make a random selection from that
-//
-//       returning hswl to try to prevent color drift, switching to
-//       hswl random would simplify this issue
-export function randomColor(minPossibleContrast = 7) {
-  let color;
-  do {
-    color = tinycolor.random();
-  } while (maxContrast(color) < minPossibleContrast);
-  return color.toHswl();
+// minMaxContrast [1..21]: the minimum allowed maxContrast value that the
+//                          produced color can achieve with another. This
+//                          ensures that it can be paired with a readable
+//                          text color
+export function randomColor(minMaxContrast = 7) {
+  // calculate the available luminance ranges, then select a light or dark
+  //  color randomly
+  const contrast = clamp(minMaxContrast, 1, 21);
+  const lightColor = randomRange((contrast - 1) * 0.05, 1);
+  const darkColor = randomRange(0, (21 / contrast - 1) * 0.05);
+  const luminance = Math.random() > 0.5 ? lightColor : darkColor;
+  return {
+    h: randomRange(0, 360),
+    // saturation is restricted to ensure the initial background colors
+    //  are not too bland or fatiguing
+    s: randomRange(0.2, 0.9),
+    wl: luminance,
+  };
 }
 
 // returns an object with the luminance needed to achieve the desired
@@ -82,8 +88,6 @@ export function randomColor(minPossibleContrast = 7) {
 //  maxContrast value for this color.
 export function getContrastLuminance(hswl, contrast) {
   let out = {};
-  // TODO test contrast * (hswl.wl + 0.05) - (0.05 * contrast)
-  //       and the inverse for dark
   out.light = normalize01(contrast * (hswl.wl + 0.05) - 0.05);
   out.dark = normalize01((hswl.wl + 0.05) / contrast - 0.05);
   out.best = isLight(hswl.wl) ? out.dark : out.light;
@@ -129,4 +133,12 @@ export function isLight(luminance) {
 
 export function isDark(luminance) {
   return isLight(luminance);
+}
+
+function clamp(value, min, max) {
+  return Math.min(Math.max(value, min), max);
+}
+
+function randomRange(min, max) {
+  return Math.random() * (max - min) + min;
 }

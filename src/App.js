@@ -30,14 +30,16 @@ import Box from "@mui/material/Box";
 //       to their current derived colors to prevent them from changing suddenly
 //       and inform them with a small infobox
 
+const initialSwatches = {
+  0: { hswl: randomColor(), parentId: null, contrast: 1 },
+  1: { hswl: randomColor(), parentId: 0, contrast: 3 },
+  2: { hswl: randomColor(), parentId: 0, contrast: 4.5 },
+}
+
 export default function App() {
   const [lastColor, setLastColor] = useState("#000000");
   const [selectedSwatch, setSelectedSwatch] = useState(0);
-  const [swatches, setSwatches] = useState({
-    0: { color: randomColor(), parentId: null, contrast: 1 },
-    1: { color: randomColor(), parentId: 0, contrast: 3 },
-    2: { color: randomColor(), parentId: 0, contrast: 4.5 },
-  });
+  const [swatches, setSwatches] = useState(initialSwatches);
   const [hueSliderValue, setHueSliderValue] = useState(50);
   const [satSliderValue, setSatSliderValue] = useState(50);
   const [lumSliderValue, setLumSliderValue] = useState(50);
@@ -56,19 +58,19 @@ export default function App() {
 
   const handleHueSliderChange = (event, newValue) => {
     setHueSliderValue(newValue);
-    const newHswl = { ...swatches[0].color, h: newValue };
+    const newHswl = { ...swatches[0].hswl, h: newValue };
     updateSwatchColor(0, newHswl);
   };
 
   const handleSatSliderChange = (event, newValue) => {
     setSatSliderValue(newValue);
-    const newHswl = { ...swatches[0].color, s: newValue };
+    const newHswl = { ...swatches[0].hswl, s: newValue };
     updateSwatchColor(0, newHswl);
   };
 
   const handleLumSliderChange = (event, newValue) => {
     setLumSliderValue(newValue);
-    const newHswl = { ...swatches[0].color, wl: newValue };
+    const newHswl = { ...swatches[0].hswl, wl: newValue };
     updateSwatchColor(0, newHswl);
   };
 
@@ -77,7 +79,7 @@ export default function App() {
       ...swatches,
       [swatchId]: {
         ...swatches[swatchId],
-        color: newHswl,
+        hswl: newHswl,
       },
     };
 
@@ -89,7 +91,7 @@ export default function App() {
   //
   // h == hue, s == saturation, wl == luminance
   const getGradient = (swatch, attr = "wl", numStops = 17) => {
-    const hswl = swatch.color;
+    const hswl = swatch.hswl;
     // multiplier to correct the range based on the attribute selected
     const multiple = attr === "h" ? 360 : 1;
 
@@ -141,9 +143,9 @@ export default function App() {
       {Object.keys(swatches).map((id) => {
         const swatch = swatches[id];
         const parentSwatch = swatches[swatch.parentId];
-        const hswl = parentSwatch?.color
-          ? derive(parentSwatch?.color, { contrast: swatch.contrast })
-          : swatch.color;
+        const hswl = parentSwatch?.hswl
+          ? derive(parentSwatch?.hswl, { contrast: swatch.contrast })
+          : swatch.hswl;
         const color = toHex(hswl);
 
         return (

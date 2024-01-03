@@ -1,17 +1,10 @@
-import Slider from '@mui/material/Slider';
-import Box from '@mui/material/Box';
-// import { alpha, styled } from '@mui/material/styles';
-// import { css } from '@emotion/react';
+import Slider from "@mui/material/Slider";
+import Box from "@mui/material/Box";
 
-export default function GradientSlider({ value, gradient, onChange }) {
+export default function GradientSlider({ gradient, ...sliderProps }) {
   return (
     <Box sx={{ width: 300 }}>
-      <Slider
-        value={value}
-        track={false}
-        onChange={onChange}
-        style={{ background: gradient }}
-      />
+      <Slider {...sliderProps} track={false} style={{ background: gradient }} />
     </Box>
   );
 }

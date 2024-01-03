@@ -14,8 +14,21 @@ import Box from "@mui/material/Box";
 // TODO put all swatch props in an object and pass to swatch component. Look
 //       up the best practice for that
 
-// TODO if I get around to adding inheritance chains, don't forget to traverse
-//       up the tree to check for inheritance loops
+// TODO - if I get around to adding inheritance chains, don't forget to traverse
+//         up the tree to check for inheritance cycles
+//        - could also detect cycles by counting, if the count
+//      - also, inheritance will require some restructuring, as there are problems
+//         with ordering in the render stage
+//        - if a root swatch is updated, then descendent swatches must be
+//           updated in order of their depedency since their results depend on
+//           on the immediate parent
+//        - solution: store derived colors in state, rather than calculating
+//           in the render stage. Store child ids and use a queue to process
+//           new colors in the correct order
+
+// TODO when deleting a swatch with children set the children's native colors
+//       to their current derived colors to prevent them from changing suddenly
+//       and inform them with a small infobox
 
 export default function App() {
   const [lastColor, setLastColor] = useState("#000000");
@@ -36,26 +49,26 @@ export default function App() {
 
     setSelectedSwatch(id);
     updateSwatchColor(id, newHswl);
-    setHueSliderValue(newHswl.h / 3.6);
-    setSatSliderValue(newHswl.s * 100);
-    setLumSliderValue(newHswl.wl * 100);
+    setHueSliderValue(newHswl.h);
+    setSatSliderValue(newHswl.s);
+    setLumSliderValue(newHswl.wl);
   };
 
   const handleHueSliderChange = (event, newValue) => {
     setHueSliderValue(newValue);
-    const newHswl = { ...swatches[0].color, h: newValue * 3.6 };
+    const newHswl = { ...swatches[0].color, h: newValue };
     updateSwatchColor(0, newHswl);
   };
 
   const handleSatSliderChange = (event, newValue) => {
     setSatSliderValue(newValue);
-    const newHswl = { ...swatches[0].color, s: newValue / 100 };
+    const newHswl = { ...swatches[0].color, s: newValue };
     updateSwatchColor(0, newHswl);
   };
 
   const handleLumSliderChange = (event, newValue) => {
     setLumSliderValue(newValue);
-    const newHswl = { ...swatches[0].color, wl: newValue / 100 };
+    const newHswl = { ...swatches[0].color, wl: newValue };
     updateSwatchColor(0, newHswl);
   };
 
@@ -91,6 +104,12 @@ export default function App() {
 
     return `linear-gradient(90deg, ${stops.join(", ")})`;
   };
+
+  // convert the display scale from 0..1 => 0..100 for saturation and
+  //  luminance
+  function x100Scale(value) {
+    return value * 100;
+  }
 
   // todo separate text tags from swatch components
   return (
@@ -135,15 +154,23 @@ export default function App() {
 
       <GradientSlider
         value={hueSliderValue}
+        min={0}
+        max={360}
         gradient={getGradient(swatches[0], "h")}
         onChange={handleHueSliderChange}
       />
       <GradientSlider
+        step={0.01}
+        max={1}
+        scale={x100Scale}
         value={satSliderValue}
         gradient={getGradient(swatches[0], "s")}
         onChange={handleSatSliderChange}
       />
       <GradientSlider
+        step={0.01}
+        max={1}
+        scale={x100Scale}
         value={lumSliderValue}
         gradient={getGradient(swatches[0], "wl")}
         onChange={handleLumSliderChange}

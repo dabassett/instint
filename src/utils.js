@@ -1,6 +1,6 @@
 import tinycolor from "tinycolor";
 
-// this equates to the midpoint for percieved luminance on the WL scale
+// this equates to the midpoint for perceived luminance on the WL scale
 //  and is the best test to sort light and dark colors
 const MID_RELATIVE_LUMINANCE = 0.1791104;
 

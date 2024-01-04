@@ -34,7 +34,7 @@ const initialSwatches = {
   0: { hswl: randomColor(), parentId: null, contrast: 1 },
   1: { hswl: randomColor(), parentId: 0, contrast: 3 },
   2: { hswl: randomColor(), parentId: 0, contrast: 4.5 },
-}
+};
 
 export default function App() {
   const [lastColor, setLastColor] = useState("#000000");
@@ -57,20 +57,20 @@ export default function App() {
   };
 
   const handleHueSliderChange = (event, newValue) => {
-    setHueSliderValue(newValue);
-    const newHswl = { ...swatches[0].hswl, h: newValue };
+    setHueSliderValue(event.target.value);
+    const newHswl = { ...swatches[0].hswl, h: event.target.value };
     updateSwatchColor(0, newHswl);
   };
 
   const handleSatSliderChange = (event, newValue) => {
-    setSatSliderValue(newValue);
-    const newHswl = { ...swatches[0].hswl, s: newValue };
+    setSatSliderValue(event.target.value);
+    const newHswl = { ...swatches[0].hswl, s: event.target.value };
     updateSwatchColor(0, newHswl);
   };
 
   const handleLumSliderChange = (event, newValue) => {
-    setLumSliderValue(newValue);
-    const newHswl = { ...swatches[0].hswl, wl: newValue };
+    setLumSliderValue(event.target.value);
+    const newHswl = { ...swatches[0].hswl, wl: event.target.value };
     updateSwatchColor(0, newHswl);
   };
 
@@ -110,7 +110,14 @@ export default function App() {
   // convert the display scale from 0..1 => 0..100 for saturation and
   //  luminance
   function x100Scale(value) {
-    return value * 100;
+    // round to fix floating point conversion. Math.round has numerous
+    //  pitfalls documented but it's fine for this use
+    return Math.round(value * 100);
+  }
+
+  // Add the degree (°) symbol to the label
+  function hueScale(value) {
+    return `${value}\u00b0`;
   }
 
   // todo separate text tags from swatch components
@@ -155,23 +162,30 @@ export default function App() {
       })}
 
       <GradientSlider
-        value={hueSliderValue}
         min={0}
         max={360}
+        step={1}
+        label="Hue"
+        scale={hueScale}
+        value={hueSliderValue}
         gradient={getGradient(swatches[0], "h")}
         onChange={handleHueSliderChange}
       />
       <GradientSlider
-        step={0.01}
+        min={0}
         max={1}
+        step={0.01}
+        label="Saturation"
         scale={x100Scale}
         value={satSliderValue}
         gradient={getGradient(swatches[0], "s")}
         onChange={handleSatSliderChange}
       />
       <GradientSlider
-        step={0.01}
+        min={0}
         max={1}
+        step={0.01}
+        label="Luminance"
         scale={x100Scale}
         value={lumSliderValue}
         gradient={getGradient(swatches[0], "wl")}

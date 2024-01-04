@@ -64,19 +64,26 @@ export function maxContrast(tiny) {
 //                          produced color can achieve with another. This
 //                          ensures that it can be paired with a readable
 //                          text color
-export function randomColor(minMaxContrast = 7) {
+export function randomColor(minMaxContrast = 7, options = {}) {
+  // color ranges are restricted to ensure the initial background colors
+  //  are not too bland or fatiguing (like a full saturation green background)
+  const opts = {
+    ...options,
+    h: { min: 0, max: 360 },
+    s: { min: 0.2, max: 0.8 },
+    wl: { min: 0.01, max: 0.8 },
+  };
+
   // calculate the available luminance ranges, then select a light or dark
   //  color randomly
   const contrast = clamp(minMaxContrast, 1, 21);
-  const lightColor = randomRange((contrast - 1) * 0.05, 1);
-  const darkColor = randomRange(0, (21 / contrast - 1) * 0.05);
+  const lightColor = randomRange((contrast - 1) * 0.05, opts.wl.max);
+  const darkColor = randomRange(opts.wl.min, (21 / contrast - 1) * 0.05);
   const luminance = Math.random() > 0.5 ? lightColor : darkColor;
   return {
-    h: randomRange(0, 360),
-    // saturation is restricted to ensure the initial background colors
-    //  are not too bland or fatiguing
-    s: randomRange(0.2, 0.9),
-    wl: luminance,
+    h: Math.round(randomRange(opts.h.min, opts.h.max)),
+    s: Math.round(randomRange(opts.s.min, opts.s.max) * 100) / 100,
+    wl: Math.round(luminance * 100) / 100,
   };
 }
 

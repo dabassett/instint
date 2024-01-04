@@ -37,41 +37,36 @@ const initialSwatches = {
 };
 
 export default function App() {
-  const [lastColor, setLastColor] = useState("#000000");
   const [selectedSwatch, setSelectedSwatch] = useState(0);
   const [swatches, setSwatches] = useState(initialSwatches);
-  const [hueSliderValue, setHueSliderValue] = useState(50);
-  const [satSliderValue, setSatSliderValue] = useState(50);
-  const [lumSliderValue, setLumSliderValue] = useState(50);
 
+  const activeColor = swatches[selectedSwatch]?.hswl ?? { h: 0, s: 0, wl: 0 };
   let nextId = Object.keys(swatches).length;
 
   const handleSwatchClick = (id) => {
-    const newHswl = randomColor();
-
     setSelectedSwatch(id);
-    updateSwatchColor(id, newHswl);
-    setHueSliderValue(newHswl.h);
-    setSatSliderValue(newHswl.s);
-    setLumSliderValue(newHswl.wl);
+  };
+
+  const handleRandomizeClick = (event) => {
+    updateSwatchColor(selectedSwatch, randomColor());
   };
 
   const handleHueSliderChange = (event, newValue) => {
-    setHueSliderValue(event.target.value);
-    const newHswl = { ...swatches[0].hswl, h: event.target.value };
-    updateSwatchColor(0, newHswl);
+    const newHswl = { ...swatches[selectedSwatch].hswl, h: event.target.value };
+    updateSwatchColor(selectedSwatch, newHswl);
   };
 
   const handleSatSliderChange = (event, newValue) => {
-    setSatSliderValue(event.target.value);
-    const newHswl = { ...swatches[0].hswl, s: event.target.value };
-    updateSwatchColor(0, newHswl);
+    const newHswl = { ...swatches[selectedSwatch].hswl, s: event.target.value };
+    updateSwatchColor(selectedSwatch, newHswl);
   };
 
   const handleLumSliderChange = (event, newValue) => {
-    setLumSliderValue(event.target.value);
-    const newHswl = { ...swatches[0].hswl, wl: event.target.value };
-    updateSwatchColor(0, newHswl);
+    const newHswl = {
+      ...swatches[selectedSwatch].hswl,
+      wl: event.target.value,
+    };
+    updateSwatchColor(selectedSwatch, newHswl);
   };
 
   const updateSwatchColor = (swatchId, newHswl) => {
@@ -126,7 +121,7 @@ export default function App() {
       <h1>iNSTiNT</h1>
       <h2
         style={{
-          color: lastColor,
+          color: toHex(activeColor),
         }}
       >
         Generate an entire color palette from a single input!
@@ -145,6 +140,10 @@ export default function App() {
         }}
       >
         Add Swatch
+      </Button>
+
+      <Button variant="contained" onClick={handleRandomizeClick}>
+        Randomize Color
       </Button>
 
       {Object.keys(swatches).map((id) => {
@@ -167,8 +166,8 @@ export default function App() {
         step={1}
         label="Hue"
         scale={hueScale}
-        value={hueSliderValue}
-        gradient={getGradient(swatches[0], "h")}
+        value={activeColor.h}
+        gradient={getGradient(swatches[selectedSwatch], "h")}
         onChange={handleHueSliderChange}
       />
       <GradientSlider
@@ -177,8 +176,8 @@ export default function App() {
         step={0.01}
         label="Saturation"
         scale={x100Scale}
-        value={satSliderValue}
-        gradient={getGradient(swatches[0], "s")}
+        value={activeColor.s}
+        gradient={getGradient(swatches[selectedSwatch], "s")}
         onChange={handleSatSliderChange}
       />
       <GradientSlider
@@ -187,8 +186,8 @@ export default function App() {
         step={0.01}
         label="Luminance"
         scale={x100Scale}
-        value={lumSliderValue}
-        gradient={getGradient(swatches[0], "wl")}
+        value={activeColor.wl}
+        gradient={getGradient(swatches[selectedSwatch], "wl")}
         onChange={handleLumSliderChange}
       />
     </div>

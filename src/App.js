@@ -3,6 +3,9 @@ import { randomColor, derive, toHex } from "./utils.js";
 import GradientSlider from "./GradientSlider.js";
 import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
+import Card from "@mui/material/Card";
+import CardContent from "@mui/material/CardContent";
+import Typography from "@mui/material/Typography";
 // TODO install material icons
 //      https://mui.com/material-ui/getting-started/installation/#icons
 
@@ -30,17 +33,42 @@ import Box from "@mui/material/Box";
 //       to their current derived colors to prevent them from changing suddenly
 //       and inform them with a small infobox
 
+// TODO NEXT
+// make sliders and toggles for the adjustment settings
+//   swatch state controls conditional rendering
+//   handlers to set state
+//   pass to derive in an options object
+//     need derive refactor for names
+// getGradient need an options map for the new settings and to use derive
+// swatch generation needs to reflect the change
+
+const swatchDefaults = {
+  hswl: { h: 0, s: 0, wl: 0 },
+  parentId: null,
+  contrast: 1,
+  adjustHswl: { h: 0, s: 0, wl: 0 },
+  fixHswl: { h: 0, s: 0, wl: 0 },
+  toggle: { h: "adj", s: "adj", wl: "adj" },
+};
+
 const initialSwatches = {
-  0: { hswl: randomColor(), parentId: null, contrast: 1 },
-  1: { hswl: randomColor(), parentId: 0, contrast: 3 },
-  2: { hswl: randomColor(), parentId: 0, contrast: 4.5 },
+  0: { ...swatchDefaults, hswl: randomColor() },
+  1: { ...swatchDefaults, parentId: 0, contrast: 3 },
+  2: { ...swatchDefaults, parentId: 0, contrast: 4.5 },
+  3: { ...swatchDefaults, parentId: 0, contrast: 7 },
 };
 
 export default function App() {
   const [selectedSwatch, setSelectedSwatch] = useState(0);
   const [swatches, setSwatches] = useState(initialSwatches);
 
-  const activeColor = swatches[selectedSwatch]?.hswl ?? { h: 0, s: 0, wl: 0 };
+  const activeSwatch = swatches[selectedSwatch];
+  const activeColor = activeSwatch?.hswl ?? swatchDefaults.hswl;
+  // TODO derive and child color updates should be happening in the change handler
+  const bgColor = swatches[0]?.hswl ?? swatchDefaults.hswl;
+  const textAColor = derive(bgColor, { contrast: swatches[1].contrast });
+  const textAAColor = derive(bgColor, { contrast: swatches[2].contrast });
+  const textAAAColor = derive(bgColor, { contrast: swatches[3].contrast });
   let nextId = Object.keys(swatches).length;
 
   const handleSwatchClick = (id) => {
@@ -85,8 +113,7 @@ export default function App() {
   //  color while fixing the other attributes
   //
   // h == hue, s == saturation, wl == luminance
-  const getGradient = (swatch, attr = "wl", numStops = 17) => {
-    const hswl = swatch.hswl;
+  const getGradient = (hswl, attr = "wl", numStops = 17) => {
     // multiplier to correct the range based on the attribute selected
     const multiple = attr === "h" ? 360 : 1;
 
@@ -118,14 +145,29 @@ export default function App() {
   // todo separate text tags from swatch components
   return (
     <div className="App">
-      <h1>iNSTiNT</h1>
-      <h2
+      <h1>Instint</h1>
+
+      <Card
+        variant="outlined"
+        sx={{ minWidth: 275, width: 500 }}
         style={{
-          color: toHex(activeColor),
+          background: toHex(bgColor),
+          border: `1px ${toHex(textAAAColor)} solid`,
+          outline: `1px ${toHex(textAColor)} solid`,
         }}
       >
-        Generate an entire color palette from a single input!
-      </h2>
+        <CardContent>
+          <Typography sx={{ fontSize: 28 }} color={toHex(textAColor)} gutterBottom>
+            Welcome to Instint!
+          </Typography>
+          <Typography sx={{ fontSize: 18 }} color={toHex(textAAColor)} gutterBottom>
+            Here to help designers pair text and background colors that are both beautiful and easy to read
+          </Typography>
+          <Typography sx={{ fontSize: 14 }} color={toHex(textAAAColor)} gutterBottom>
+            Instint can take any color and generate analogous colors that satisfy WCAG 2.1 contrast ratio requirements. This means that you no longer need to fiddle with finicky formulae to create perfect color palettes.
+          </Typography>
+        </CardContent>
+      </Card>
 
       {/* create new swatch button */}
       <Button
@@ -167,7 +209,7 @@ export default function App() {
         label="Hue"
         scale={hueScale}
         value={activeColor.h}
-        gradient={getGradient(swatches[selectedSwatch], "h")}
+        gradient={getGradient(activeColor, "h")}
         onChange={handleHueSliderChange}
       />
       <GradientSlider
@@ -177,7 +219,7 @@ export default function App() {
         label="Saturation"
         scale={x100Scale}
         value={activeColor.s}
-        gradient={getGradient(swatches[selectedSwatch], "s")}
+        gradient={getGradient(activeColor, "s")}
         onChange={handleSatSliderChange}
       />
       <GradientSlider
@@ -187,8 +229,18 @@ export default function App() {
         label="Luminance"
         scale={x100Scale}
         value={activeColor.wl}
-        gradient={getGradient(swatches[selectedSwatch], "wl")}
+        gradient={getGradient(activeColor, "wl")}
         onChange={handleLumSliderChange}
+      />
+      <GradientSlider
+        min={-180}
+        max={180}
+        step={1}
+        label="Adjust Hue"
+        scale={hueScale}
+        value={activeSwatch.adjustHswl.h}
+        gradient={getGradient(activeColor, "h")}
+        onChange={handleHueSliderChange}
       />
     </div>
   );

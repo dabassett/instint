@@ -43,32 +43,39 @@ import Typography from "@mui/material/Typography";
 // swatch generation needs to reflect the change
 
 const swatchDefaults = {
+  // this swatch's hue, saturation and WCAG luminance
   hswl: { h: 0, s: 0, wl: 0 },
+  // inherit one or more color attribute from this swatch
   parentId: null,
+  // attempt to achieve this contrast ratio with parent swatch
   contrast: 1,
+  // add these values to the parent swatch's attributes
   adjustHswl: { h: 0, s: 0, wl: 0 },
+  // statically set the values for these attributes (ie they will ignore the
+  //  parent's settings)
   fixHswl: { h: 0, s: 0, wl: 0 },
-  toggle: { h: "adj", s: "adj", wl: "adj" },
+  // toggles which configuration options to use when deriving the swatch's
+  //  final color
+  toggleOpts: { h: "adjust", s: "adjust", wl: "contrast" },
 };
 
 const initialSwatches = {
   0: { ...swatchDefaults, hswl: randomColor() },
-  1: { ...swatchDefaults, parentId: 0, contrast: 3 },
-  2: { ...swatchDefaults, parentId: 0, contrast: 4.5 },
-  3: { ...swatchDefaults, parentId: 0, contrast: 7 },
+  1: { ...swatchDefaults, parentId: "0", contrast: 3 },
+  2: { ...swatchDefaults, parentId: "0", contrast: 4.5 },
+  3: { ...swatchDefaults, parentId: "0", contrast: 7 },
 };
 
 export default function App() {
-  const [selectedSwatch, setSelectedSwatch] = useState(0);
+  const [selectedSwatch, setSelectedSwatch] = useState("0");
   const [swatches, setSwatches] = useState(initialSwatches);
 
   const activeSwatch = swatches[selectedSwatch];
-  const activeColor = activeSwatch?.hswl ?? swatchDefaults.hswl;
   // TODO derive and child color updates should be happening in the change handler
-  const bgColor = swatches[0]?.hswl ?? swatchDefaults.hswl;
-  const textAColor = derive(bgColor, { contrast: swatches[1].contrast });
-  const textAAColor = derive(bgColor, { contrast: swatches[2].contrast });
-  const textAAAColor = derive(bgColor, { contrast: swatches[3].contrast });
+  const bgColor = swatches["0"]?.hswl ?? swatchDefaults.hswl;
+  const textAColor = swatches["1"]?.hswl ?? swatchDefaults.hswl;
+  const textAAColor = swatches["2"]?.hswl ?? swatchDefaults.hswl;
+  const textAAAColor = swatches["3"]?.hswl ?? swatchDefaults.hswl;
   let nextId = Object.keys(swatches).length;
 
   const handleSwatchClick = (id) => {
@@ -76,17 +83,25 @@ export default function App() {
   };
 
   const handleRandomizeClick = (event) => {
-    updateSwatchColor(selectedSwatch, randomColor());
+    updateSwatchSettings(selectedSwatch, { hswl: randomColor() });
   };
 
   const handleHueSliderChange = (event, newValue) => {
     const newHswl = { ...swatches[selectedSwatch].hswl, h: event.target.value };
-    updateSwatchColor(selectedSwatch, newHswl);
+    updateSwatchSettings(selectedSwatch, { hswl: newHswl });
+  };
+
+  const handleHueAdjSliderChange = (event, newValue) => {
+    const newAdjHswl = {
+      ...swatches[selectedSwatch].adjustHswl,
+      h: event.target.value,
+    };
+    updateSwatchSettings(selectedSwatch, { adjustHswl: newAdjHswl });
   };
 
   const handleSatSliderChange = (event, newValue) => {
     const newHswl = { ...swatches[selectedSwatch].hswl, s: event.target.value };
-    updateSwatchColor(selectedSwatch, newHswl);
+    updateSwatchSettings(selectedSwatch, { hswl: newHswl });
   };
 
   const handleLumSliderChange = (event, newValue) => {
@@ -94,19 +109,40 @@ export default function App() {
       ...swatches[selectedSwatch].hswl,
       wl: event.target.value,
     };
-    updateSwatchColor(selectedSwatch, newHswl);
+    updateSwatchSettings(selectedSwatch, { hswl: newHswl });
   };
 
-  const updateSwatchColor = (swatchId, newHswl) => {
-    const nextSwatches = {
+  const updateSwatchSettings = (swatchId, newAttributes) => {
+    // update the changed swatch attributes
+    let nextSwatches = {
       ...swatches,
       [swatchId]: {
         ...swatches[swatchId],
-        hswl: newHswl,
+        ...newAttributes,
       },
     };
 
-    setSwatches(() => nextSwatches);
+    nextSwatches = deriveChildColors(swatchId, nextSwatches);
+
+    setSwatches(nextSwatches);
+  };
+
+  const deriveChildColors = (swatchId, nextSwatches) => {
+    const newSwatch = nextSwatches[swatchId];
+    if (newSwatch.parentId !== null) {
+      newSwatch.hswl = derive(
+        nextSwatches[newSwatch.parentId].hswl,
+        swatchOptions(newSwatch),
+      );
+    }
+
+    Object.keys(nextSwatches).forEach((id) => {
+      if (nextSwatches[id].parentId === swatchId) {
+        nextSwatches = deriveChildColors(id, nextSwatches);
+      }
+    });
+
+    return nextSwatches;
   };
 
   // generate a css gradient by varying an attribute of an HSWL
@@ -142,6 +178,61 @@ export default function App() {
     return `${value}\u00b0`;
   }
 
+  // transform the swatch's state into options for utils.derive
+  function swatchOptions(swatch) {
+    let options = {};
+    // return early when there is no parent set. The swatch will not have
+    //  its color changed
+    if (swatch.parentId == null) return options;
+
+    // set hue options
+    switch (swatch.toggleOpts.h) {
+      case "adjust":
+        options.adjustHue = swatch.adjustHswl.h;
+        break;
+      case "fix":
+        options.fixHue = swatch.fixHswl.h;
+        break;
+      default:
+        throw new RangeError(
+          `Unrecognized hue option '${swatch.toggleOpts.h}'`,
+        );
+    }
+
+    // set saturation options
+    switch (swatch.toggleOpts.s) {
+      case "adjust":
+        options.adjustSat = swatch.adjustHswl.s;
+        break;
+      case "fix":
+        options.fixSat = swatch.fixHswl.s;
+        break;
+      default:
+        throw new RangeError(
+          `Unrecognized saturation option '${swatch.toggleOpts.s}'`,
+        );
+    }
+
+    // set luminance options
+    switch (swatch.toggleOpts.wl) {
+      case "contrast":
+        options.contrast = swatch.contrast;
+        break;
+      case "adjust":
+        options.adjustLum = swatch.adjustHswl.wl;
+        break;
+      case "fix":
+        options.fixLum = swatch.fixHswl.wl;
+        break;
+      default:
+        throw new RangeError(
+          `Unrecognized saturation option '${swatch.toggleOpts.wl}'`,
+        );
+    }
+
+    return options;
+  }
+
   // todo separate text tags from swatch components
   return (
     <div className="App">
@@ -157,14 +248,30 @@ export default function App() {
         }}
       >
         <CardContent>
-          <Typography sx={{ fontSize: 28 }} color={toHex(textAColor)} gutterBottom>
+          <Typography
+            sx={{ fontSize: 28 }}
+            color={toHex(textAColor)}
+            gutterBottom
+          >
             Welcome to Instint!
           </Typography>
-          <Typography sx={{ fontSize: 18 }} color={toHex(textAAColor)} gutterBottom>
-            Here to help designers pair text and background colors that are both beautiful and easy to read
+          <Typography
+            sx={{ fontSize: 18 }}
+            color={toHex(textAAColor)}
+            gutterBottom
+          >
+            Here to help designers pair text and background colors that are both
+            beautiful and easy to read
           </Typography>
-          <Typography sx={{ fontSize: 14 }} color={toHex(textAAAColor)} gutterBottom>
-            Instint can take any color and generate analogous colors that satisfy WCAG 2.1 contrast ratio requirements. This means that you no longer need to fiddle with finicky formulae to create perfect color palettes.
+          <Typography
+            sx={{ fontSize: 14 }}
+            color={toHex(textAAAColor)}
+            gutterBottom
+          >
+            Instint can take any color and generate analogous colors that
+            satisfy WCAG 2.1 contrast ratio requirements. This means that you no
+            longer need to fiddle with finicky formulae to create perfect color
+            palettes.
           </Typography>
         </CardContent>
       </Card>
@@ -174,10 +281,15 @@ export default function App() {
         variant="contained"
         onClick={() => {
           // todo: hardcoded attributes
-          const newSwatch = { color: randomColor(), parentId: 0, contrast: 7 };
+          const newSwatch = {
+            ...swatchDefaults,
+            color: randomColor(),
+            parentId: "0",
+            contrast: 7,
+          };
           setSwatches({
             ...swatches,
-            [nextId++]: newSwatch,
+            [(nextId++).toString()]: newSwatch,
           });
         }}
       >
@@ -189,12 +301,7 @@ export default function App() {
       </Button>
 
       {Object.keys(swatches).map((id) => {
-        const swatch = swatches[id];
-        const parentSwatch = swatches[swatch.parentId];
-        const hswl = parentSwatch?.hswl
-          ? derive(parentSwatch?.hswl, { contrast: swatch.contrast })
-          : swatch.hswl;
-        const color = toHex(hswl);
+        const color = toHex(swatches[id].hswl);
 
         return (
           // TODO the key should be a uuid, (immutable, unique) to prevent unnecessary rerenders
@@ -208,8 +315,8 @@ export default function App() {
         step={1}
         label="Hue"
         scale={hueScale}
-        value={activeColor.h}
-        gradient={getGradient(activeColor, "h")}
+        value={activeSwatch.hswl.h}
+        gradient={getGradient(activeSwatch.hswl, "h")}
         onChange={handleHueSliderChange}
       />
       <GradientSlider
@@ -218,8 +325,8 @@ export default function App() {
         step={0.01}
         label="Saturation"
         scale={x100Scale}
-        value={activeColor.s}
-        gradient={getGradient(activeColor, "s")}
+        value={activeSwatch.hswl.s}
+        gradient={getGradient(activeSwatch.hswl, "s")}
         onChange={handleSatSliderChange}
       />
       <GradientSlider
@@ -228,8 +335,8 @@ export default function App() {
         step={0.01}
         label="Luminance"
         scale={x100Scale}
-        value={activeColor.wl}
-        gradient={getGradient(activeColor, "wl")}
+        value={activeSwatch.hswl.wl}
+        gradient={getGradient(activeSwatch.hswl, "wl")}
         onChange={handleLumSliderChange}
       />
       <GradientSlider
@@ -239,8 +346,8 @@ export default function App() {
         label="Adjust Hue"
         scale={hueScale}
         value={activeSwatch.adjustHswl.h}
-        gradient={getGradient(activeColor, "h")}
-        onChange={handleHueSliderChange}
+        gradient={getGradient(activeSwatch.hswl, "h")}
+        onChange={handleHueAdjSliderChange}
       />
     </div>
   );

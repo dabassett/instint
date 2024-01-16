@@ -142,6 +142,11 @@ export function isDark(luminance) {
   return isLight(luminance);
 }
 
+//
+export function lerp(begin, end, val) {
+  return (1 - val) * begin + val * end;
+}
+
 function clamp(value, min, max) {
   return Math.min(Math.max(value, min), max);
 }

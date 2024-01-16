@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { randomColor, derive, toHex } from "./utils.js";
+import { randomColor, derive, toHex, lerp } from "./utils.js";
 import GradientSlider from "./GradientSlider.js";
 import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
@@ -148,17 +148,40 @@ export default function App() {
   // generate a css gradient by varying an attribute of an HSWL
   //  color while fixing the other attributes
   //
-  // h == hue, s == saturation, wl == luminance
-  const getGradient = (hswl, attr = "wl", numStops = 17) => {
+  // attr => the hswl attribute to vary
+  //   'h'  == hue,
+  //   's'  == saturation,
+  //   'wl' == luminance
+  //
+  // begin => starting value of the gradient
+  // end   => final value of the gradient
+  // numStops => number of color stops in the returned gradient
+  const getGradient = (
+    hswl,
+    attr = "wl",
+    begin = null,
+    end = null,
+    numStops = 16,
+  ) => {
+    // sensible default interpolation ranges for each attribute
+    const rangeDefaults = {
+      h: { begin: 0, end: 360 },
+      s: { begin: 0, end: 1 },
+      wl: { begin: 0, end: 1 },
+    };
     // multiplier to correct the range based on the attribute selected
-    const multiple = attr === "h" ? 360 : 1;
+    const beginVal = begin ?? rangeDefaults[attr].begin;
+    const endVal = end ?? rangeDefaults[attr].end;
 
     // create the gradient stops in HSWL-space, this makes a nonlinear
     //  gradient that accurately represents the final computed color
     let stops = [];
     for (let i = 0; i < numStops; i++) {
       const progress = i / (numStops - 1);
-      const colorStop = toHex({ ...hswl, [attr]: progress * multiple });
+      const colorStop = toHex({
+        ...hswl,
+        [attr]: lerp(beginVal, endVal, progress),
+      });
       stops.push(`${colorStop} ${progress * 100}%`);
     }
 

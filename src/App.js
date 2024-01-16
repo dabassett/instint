@@ -9,14 +9,6 @@ import Typography from "@mui/material/Typography";
 // TODO install material icons
 //      https://mui.com/material-ui/getting-started/installation/#icons
 
-// TODO when adding derived colors and reusing the input sliders in different
-///      contexts, store and retrieve all values in state so that each swatch
-//       retains its memory and it's easier for the user to experiment without
-//       needing to worry about losing previous settings
-
-// TODO put all swatch props in an object and pass to swatch component. Look
-//       up the best practice for that
-
 // TODO - if I get around to adding inheritance chains, don't forget to traverse
 //         up the tree to check for inheritance cycles
 //        - could also detect cycles by counting, if the count
@@ -39,8 +31,6 @@ import Typography from "@mui/material/Typography";
 //   handlers to set state
 //   pass to derive in an options object
 //     need derive refactor for names
-// getGradient need an options map for the new settings and to use derive
-// swatch generation needs to reflect the change
 
 const swatchDefaults = {
   // this swatch's hue, saturation and WCAG luminance
@@ -71,6 +61,12 @@ export default function App() {
   const [swatches, setSwatches] = useState(initialSwatches);
 
   const activeSwatch = swatches[selectedSwatch];
+  const activeParent = swatches[activeSwatch.parentId];
+  const parentHswl = {
+    ...{h: 0, s: 0, wl: 0},
+    ...activeParent?.hswl,
+  };
+
   // TODO derive and child color updates should be happening in the change handler
   const bgColor = swatches["0"]?.hswl ?? swatchDefaults.hswl;
   const textAColor = swatches["1"]?.hswl ?? swatchDefaults.hswl;
@@ -369,7 +365,7 @@ export default function App() {
         label="Adjust Hue"
         scale={hueScale}
         value={activeSwatch.adjustHswl.h}
-        gradient={getGradient(activeSwatch.hswl, "h")}
+        gradient={getGradient(activeSwatch.hswl, "h", parentHswl.h - 180, parentHswl.h + 180)}
         onChange={handleHueAdjSliderChange}
       />
     </div>

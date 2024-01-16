@@ -2,6 +2,8 @@ import { useState } from "react";
 import { randomColor, derive, toHex, lerp } from "./utils.js";
 import GradientSlider from "./GradientSlider.js";
 import Button from "@mui/material/Button";
+import ToggleButton from "@mui/material/ToggleButton";
+import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import Box from "@mui/material/Box";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
@@ -63,7 +65,7 @@ export default function App() {
   const activeSwatch = swatches[selectedSwatch];
   const activeParent = swatches[activeSwatch.parentId];
   const parentHswl = {
-    ...{h: 0, s: 0, wl: 0},
+    ...{ h: 0, s: 0, wl: 0 },
     ...activeParent?.hswl,
   };
 
@@ -87,14 +89,6 @@ export default function App() {
     updateSwatchSettings(selectedSwatch, { hswl: newHswl });
   };
 
-  const handleHueAdjSliderChange = (event, newValue) => {
-    const newAdjHswl = {
-      ...swatches[selectedSwatch].adjustHswl,
-      h: event.target.value,
-    };
-    updateSwatchSettings(selectedSwatch, { adjustHswl: newAdjHswl });
-  };
-
   const handleSatSliderChange = (event, newValue) => {
     const newHswl = { ...swatches[selectedSwatch].hswl, s: event.target.value };
     updateSwatchSettings(selectedSwatch, { hswl: newHswl });
@@ -106,6 +100,63 @@ export default function App() {
       wl: event.target.value,
     };
     updateSwatchSettings(selectedSwatch, { hswl: newHswl });
+  };
+
+  const handleHueAdjSliderChange = (event, newValue) => {
+    const newAdjHswl = {
+      ...swatches[selectedSwatch].adjustHswl,
+      h: event.target.value,
+    };
+    updateSwatchSettings(selectedSwatch, { adjustHswl: newAdjHswl });
+  };
+
+  const handleSatAdjSliderChange = (event, newValue) => {
+    const newAdjHswl = {
+      ...swatches[selectedSwatch].adjustHswl,
+      s: event.target.value,
+    };
+    updateSwatchSettings(selectedSwatch, { adjustHswl: newAdjHswl });
+  };
+
+  const handleLumAdjSliderChange = (event, newValue) => {
+    const newAdjHswl = {
+      ...swatches[selectedSwatch].adjustHswl,
+      wl: event.target.value,
+    };
+    updateSwatchSettings(selectedSwatch, { adjustHswl: newAdjHswl });
+  };
+
+  const handleHueToggleChange = (event, newValue) => {
+    if (newValue === null) return;
+
+    const newToggleOpts = {
+      ...activeSwatch.toggleOpts,
+      h: newValue,
+    };
+
+    updateSwatchSettings(selectedSwatch, { toggleOpts: newToggleOpts });
+  };
+
+  const handleSatToggleChange = (event, newValue) => {
+    if (newValue === null) return;
+
+    const newToggleOpts = {
+      ...activeSwatch.toggleOpts,
+      s: newValue,
+    };
+
+    updateSwatchSettings(selectedSwatch, { toggleOpts: newToggleOpts });
+  };
+
+  const handleLumToggleChange = (event, newValue) => {
+    if (newValue === null) return;
+
+    const newToggleOpts = {
+      ...activeSwatch.toggleOpts,
+      wl: newValue,
+    };
+
+    updateSwatchSettings(selectedSwatch, { toggleOpts: newToggleOpts });
   };
 
   const updateSwatchSettings = (swatchId, newAttributes) => {
@@ -252,6 +303,126 @@ export default function App() {
     return options;
   }
 
+  // generates the sliders, toggles and other controls for the
+  //  selected swatch
+  const PaletteSliders = () => {
+    let sliders = (
+      <>
+        <GradientSlider
+          min={0}
+          max={360}
+          step={1}
+          label="Hue"
+          scale={hueScale}
+          value={activeSwatch.hswl.h}
+          gradient={getGradient(activeSwatch.hswl, "h")}
+          onChange={handleHueSliderChange}
+        />
+        <GradientSlider
+          min={0}
+          max={1}
+          step={0.01}
+          label="Saturation"
+          scale={x100Scale}
+          value={activeSwatch.hswl.s}
+          gradient={getGradient(activeSwatch.hswl, "s")}
+          onChange={handleSatSliderChange}
+        />
+        <GradientSlider
+          min={0}
+          max={1}
+          step={0.01}
+          label="Luminance"
+          scale={x100Scale}
+          value={activeSwatch.hswl.wl}
+          gradient={getGradient(activeSwatch.hswl, "wl")}
+          onChange={handleLumSliderChange}
+        />
+      </>
+    );
+
+    if (activeSwatch.parentId !== null) {
+      const hueToggleControls = {
+        value: activeSwatch.toggleOpts.h,
+        onChange: handleHueToggleChange,
+        exclusive: true,
+        size: "small",
+      };
+      const satToggleControls = {
+        value: activeSwatch.toggleOpts.s,
+        onChange: handleSatToggleChange,
+        exclusive: true,
+        size: "small",
+      };
+      const lumToggleControls = {
+        value: activeSwatch.toggleOpts.wl,
+        onChange: handleLumToggleChange,
+        exclusive: true,
+        size: "small",
+      };
+
+      sliders = (
+        <>
+          <ToggleButtonGroup {...hueToggleControls}>
+            <ToggleButton value="adjust">Adj</ToggleButton>
+            <ToggleButton value="fix">Fix</ToggleButton>
+          </ToggleButtonGroup>
+
+          <GradientSlider
+            min={-180}
+            max={180}
+            step={1}
+            label="Adjust Hue"
+            scale={hueScale}
+            value={activeSwatch.adjustHswl.h}
+            gradient={getGradient(
+              activeSwatch.hswl,
+              "h",
+              parentHswl.h - 180,
+              parentHswl.h + 180,
+            )}
+            onChange={handleHueAdjSliderChange}
+          />
+
+          <ToggleButtonGroup {...satToggleControls}>
+            <ToggleButton value="adjust">Adj</ToggleButton>
+            <ToggleButton value="fix">Fix</ToggleButton>
+          </ToggleButtonGroup>
+
+          <GradientSlider
+            min={-parentHswl.s}
+            max={1 - parentHswl.s}
+            step={0.01}
+            label="Adjust Saturation"
+            scale={x100Scale}
+            value={activeSwatch.adjustHswl.s}
+            gradient={getGradient(activeSwatch.hswl, "s")}
+            onChange={handleSatAdjSliderChange}
+          />
+
+          <ToggleButtonGroup {...lumToggleControls}>
+            <ToggleButton value="contrast">Contrast</ToggleButton>
+            <ToggleButton value="adjust">Adj</ToggleButton>
+            <ToggleButton value="fix">Fix</ToggleButton>
+          </ToggleButtonGroup>
+
+          <GradientSlider
+            min={-parentHswl.wl}
+            max={1 - parentHswl.wl}
+            step={0.01}
+            label="Adjust Luminance"
+            scale={x100Scale}
+            value={activeSwatch.adjustHswl.wl}
+            gradient={getGradient(activeSwatch.hswl, "wl")}
+            onChange={handleLumAdjSliderChange}
+          />
+        </>
+      );
+    }
+
+    return sliders;
+  };
+
   // todo separate text tags from swatch components
   return (
     <div className="App">
@@ -328,46 +499,7 @@ export default function App() {
         );
       })}
 
-      <GradientSlider
-        min={0}
-        max={360}
-        step={1}
-        label="Hue"
-        scale={hueScale}
-        value={activeSwatch.hswl.h}
-        gradient={getGradient(activeSwatch.hswl, "h")}
-        onChange={handleHueSliderChange}
-      />
-      <GradientSlider
-        min={0}
-        max={1}
-        step={0.01}
-        label="Saturation"
-        scale={x100Scale}
-        value={activeSwatch.hswl.s}
-        gradient={getGradient(activeSwatch.hswl, "s")}
-        onChange={handleSatSliderChange}
-      />
-      <GradientSlider
-        min={0}
-        max={1}
-        step={0.01}
-        label="Luminance"
-        scale={x100Scale}
-        value={activeSwatch.hswl.wl}
-        gradient={getGradient(activeSwatch.hswl, "wl")}
-        onChange={handleLumSliderChange}
-      />
-      <GradientSlider
-        min={-180}
-        max={180}
-        step={1}
-        label="Adjust Hue"
-        scale={hueScale}
-        value={activeSwatch.adjustHswl.h}
-        gradient={getGradient(activeSwatch.hswl, "h", parentHswl.h - 180, parentHswl.h + 180)}
-        onChange={handleHueAdjSliderChange}
-      />
+      {PaletteSliders()}
     </div>
   );
 }

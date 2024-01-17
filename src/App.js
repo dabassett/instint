@@ -27,13 +27,6 @@ import Typography from "@mui/material/Typography";
 //       to their current derived colors to prevent them from changing suddenly
 //       and inform them with a small infobox
 
-// TODO NEXT
-// make sliders and toggles for the adjustment settings
-//   swatch state controls conditional rendering
-//   handlers to set state
-//   pass to derive in an options object
-//     need derive refactor for names
-
 const swatchDefaults = {
   // this swatch's hue, saturation and WCAG luminance
   hswl: { h: 0, s: 0, wl: 0 },
@@ -124,6 +117,34 @@ export default function App() {
       wl: event.target.value,
     };
     updateSwatchSettings(selectedSwatch, { adjustHswl: newAdjHswl });
+  };
+
+  const handleHueFixSliderChange = (event, newValue) => {
+    const newFixHswl = {
+      ...swatches[selectedSwatch].fixHswl,
+      h: event.target.value,
+    };
+    updateSwatchSettings(selectedSwatch, { fixHswl: newFixHswl });
+  };
+
+  const handleSatFixSliderChange = (event, newValue) => {
+    const newFixHswl = {
+      ...swatches[selectedSwatch].fixHswl,
+      s: event.target.value,
+    };
+    updateSwatchSettings(selectedSwatch, { fixHswl: newFixHswl });
+  };
+
+  const handleLumFixSliderChange = (event, newValue) => {
+    const newFixHswl = {
+      ...swatches[selectedSwatch].fixHswl,
+      wl: event.target.value,
+    };
+    updateSwatchSettings(selectedSwatch, { fixHswl: newFixHswl });
+  };
+
+  const handleContrastSliderChange = (event, newValue) => {
+    updateSwatchSettings(selectedSwatch, { contrast: newValue });
   };
 
   const handleHueToggleChange = (event, newValue) => {
@@ -306,38 +327,45 @@ export default function App() {
   // generates the sliders, toggles and other controls for the
   //  selected swatch
   const PaletteSliders = () => {
+    // set default slider settings
+    let hueSliderSettings = {
+      min: 0,
+      max: 360,
+      step: 1,
+      label: "Hue",
+      scale: hueScale,
+      value: activeSwatch.hswl.h,
+      gradient: getGradient(activeSwatch.hswl, "h"),
+      onChange: handleHueSliderChange,
+    };
+
+    let satSliderSettings = {
+      min: 0,
+      max: 1,
+      step: 0.01,
+      label: "Saturation",
+      scale: x100Scale,
+      value: activeSwatch.hswl.s,
+      gradient: getGradient(activeSwatch.hswl, "s"),
+      onChange: handleSatSliderChange,
+    };
+
+    let lumSliderSettings = {
+      min: 0,
+      max: 1,
+      step: 0.01,
+      label: "Luminance",
+      scale: x100Scale,
+      value: activeSwatch.hswl.wl,
+      gradient: getGradient(activeSwatch.hswl, "wl"),
+      onChange: handleLumSliderChange,
+    };
+
     let sliders = (
       <>
-        <GradientSlider
-          min={0}
-          max={360}
-          step={1}
-          label="Hue"
-          scale={hueScale}
-          value={activeSwatch.hswl.h}
-          gradient={getGradient(activeSwatch.hswl, "h")}
-          onChange={handleHueSliderChange}
-        />
-        <GradientSlider
-          min={0}
-          max={1}
-          step={0.01}
-          label="Saturation"
-          scale={x100Scale}
-          value={activeSwatch.hswl.s}
-          gradient={getGradient(activeSwatch.hswl, "s")}
-          onChange={handleSatSliderChange}
-        />
-        <GradientSlider
-          min={0}
-          max={1}
-          step={0.01}
-          label="Luminance"
-          scale={x100Scale}
-          value={activeSwatch.hswl.wl}
-          gradient={getGradient(activeSwatch.hswl, "wl")}
-          onChange={handleLumSliderChange}
-        />
+        <GradientSlider {...hueSliderSettings} />
+        <GradientSlider {...satSliderSettings} />
+        <GradientSlider {...lumSliderSettings} />
       </>
     );
 
@@ -361,6 +389,99 @@ export default function App() {
         size: "small",
       };
 
+      switch (activeSwatch.toggleOpts.h) {
+        case "adjust":
+          hueSliderSettings = {
+            ...hueSliderSettings,
+            min: -180,
+            max: 180,
+            label: "Adjust Hue",
+            value: activeSwatch.adjustHswl.h,
+            onChange: handleHueAdjSliderChange,
+            gradient: getGradient(
+              activeSwatch.hswl,
+              "h",
+              parentHswl.h - 180,
+              parentHswl.h + 180,
+            ),
+          };
+          break;
+        case "fix":
+          hueSliderSettings = {
+            ...hueSliderSettings,
+            label: "Fix Hue",
+            value: activeSwatch.fixHswl.h,
+            onChange: handleHueFixSliderChange,
+          };
+          break;
+        default:
+          throw new RangeError(
+            `Unrecognized hue option '${activeSwatch.toggleOpts.h}'`,
+          );
+      }
+
+      switch (activeSwatch.toggleOpts.s) {
+        case "adjust":
+          satSliderSettings = {
+            ...satSliderSettings,
+            min: -parentHswl.s,
+            max: 1 - parentHswl.s,
+            label: "Adjust Saturation",
+            value: activeSwatch.adjustHswl.s,
+            onChange: handleSatAdjSliderChange,
+          };
+          break;
+        case "fix":
+          satSliderSettings = {
+            ...satSliderSettings,
+            label: "Fix Saturation",
+            value: activeSwatch.fixHswl.s,
+            onChange: handleSatFixSliderChange,
+          };
+          break;
+        default:
+          throw new RangeError(
+            `Unrecognized saturation option '${activeSwatch.toggleOpts.s}'`,
+          );
+      }
+
+      switch (activeSwatch.toggleOpts.wl) {
+        case "adjust":
+          lumSliderSettings = {
+            ...lumSliderSettings,
+            min: -parentHswl.wl,
+            max: 1 - parentHswl.wl,
+            label: "Adjust Luminance",
+            value: activeSwatch.adjustHswl.wl,
+            onChange: handleLumAdjSliderChange,
+          };
+          break;
+        case "fix":
+          lumSliderSettings = {
+            ...lumSliderSettings,
+            label: "Fix Luminance",
+            value: activeSwatch.fixHswl.wl,
+            onChange: handleLumFixSliderChange,
+          };
+          break;
+        case "contrast":
+          lumSliderSettings = {
+            ...lumSliderSettings,
+            min: 1,
+            max: 21,
+            step: 0.1,
+            scale: (n) => n,
+            label: "Contrast Ratio",
+            value: activeSwatch.contrast,
+            onChange: handleContrastSliderChange,
+          };
+          break;
+        default:
+          throw new RangeError(
+            `Unrecognized luminance option '${activeSwatch.toggleOpts.wl}'`,
+          );
+      }
+
       sliders = (
         <>
           <ToggleButtonGroup {...hueToggleControls}>
@@ -368,37 +489,14 @@ export default function App() {
             <ToggleButton value="fix">Fix</ToggleButton>
           </ToggleButtonGroup>
 
-          <GradientSlider
-            min={-180}
-            max={180}
-            step={1}
-            label="Adjust Hue"
-            scale={hueScale}
-            value={activeSwatch.adjustHswl.h}
-            gradient={getGradient(
-              activeSwatch.hswl,
-              "h",
-              parentHswl.h - 180,
-              parentHswl.h + 180,
-            )}
-            onChange={handleHueAdjSliderChange}
-          />
+          <GradientSlider {...hueSliderSettings} />
 
           <ToggleButtonGroup {...satToggleControls}>
             <ToggleButton value="adjust">Adj</ToggleButton>
             <ToggleButton value="fix">Fix</ToggleButton>
           </ToggleButtonGroup>
 
-          <GradientSlider
-            min={-parentHswl.s}
-            max={1 - parentHswl.s}
-            step={0.01}
-            label="Adjust Saturation"
-            scale={x100Scale}
-            value={activeSwatch.adjustHswl.s}
-            gradient={getGradient(activeSwatch.hswl, "s")}
-            onChange={handleSatAdjSliderChange}
-          />
+          <GradientSlider {...satSliderSettings} />
 
           <ToggleButtonGroup {...lumToggleControls}>
             <ToggleButton value="contrast">Contrast</ToggleButton>
@@ -406,16 +504,7 @@ export default function App() {
             <ToggleButton value="fix">Fix</ToggleButton>
           </ToggleButtonGroup>
 
-          <GradientSlider
-            min={-parentHswl.wl}
-            max={1 - parentHswl.wl}
-            step={0.01}
-            label="Adjust Luminance"
-            scale={x100Scale}
-            value={activeSwatch.adjustHswl.wl}
-            gradient={getGradient(activeSwatch.hswl, "wl")}
-            onChange={handleLumAdjSliderChange}
-          />
+          <GradientSlider {...lumSliderSettings} />
         </>
       );
     }

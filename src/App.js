@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { randomColor, derive, toHex, lerp } from "./utils.js";
 import GradientSlider from "./GradientSlider.js";
+import Swatch from "./Swatch.js";
 import Button from "@mui/material/Button";
 import ToggleButton from "@mui/material/ToggleButton";
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
@@ -27,6 +28,14 @@ import Typography from "@mui/material/Typography";
 //       to their current derived colors to prevent them from changing suddenly
 //       and inform them with a small infobox
 
+// TODO features
+// - warning icons and descriptions when colors don't satisfy contrast requirements
+// - swatch names
+// - swatches display hex codes
+// - palette dump to plaintext css and json
+// - multiple palettes for more page variety
+// - configurable inheritance
+
 const swatchDefaults = {
   // this swatch's hue, saturation and WCAG luminance
   hswl: { h: 0, s: 0, wl: 0 },
@@ -46,8 +55,8 @@ const swatchDefaults = {
 
 const initialSwatches = {
   0: { ...swatchDefaults, hswl: randomColor() },
-  1: { ...swatchDefaults, parentId: "0", contrast: 3 },
-  2: { ...swatchDefaults, parentId: "0", contrast: 4.5 },
+  1: { ...swatchDefaults, parentId: "0", contrast: 3.5 },
+  2: { ...swatchDefaults, parentId: "0", contrast: 5 },
   3: { ...swatchDefaults, parentId: "0", contrast: 7 },
 };
 
@@ -529,14 +538,18 @@ export default function App() {
         <CardContent>
           <Typography
             sx={{ fontSize: 28 }}
-            color={toHex(textAColor)}
+            style={{
+              color: toHex(textAColor),
+            }}
             gutterBottom
           >
             Welcome to Instint!
           </Typography>
           <Typography
             sx={{ fontSize: 18 }}
-            color={toHex(textAAColor)}
+            style={{
+              color: toHex(textAAColor),
+            }}
             gutterBottom
           >
             Here to help designers pair text and background colors that are both
@@ -544,7 +557,9 @@ export default function App() {
           </Typography>
           <Typography
             sx={{ fontSize: 14 }}
-            color={toHex(textAAAColor)}
+            style={{
+              color: toHex(textAAAColor),
+            }}
             gutterBottom
           >
             Instint can take any color and generate analogous colors that
@@ -580,29 +595,18 @@ export default function App() {
       </Button>
 
       {Object.keys(swatches).map((id) => {
-        const color = toHex(swatches[id].hswl);
-
         return (
           // TODO the key should be a uuid, (immutable, unique) to prevent unnecessary rerenders
-          <Swatch key={id} id={id} color={color} onClick={handleSwatchClick} />
+          <Swatch
+            key={id}
+            id={id}
+            hswl={swatches[id].hswl}
+            onClick={handleSwatchClick}
+          />
         );
       })}
 
       {PaletteSliders()}
     </div>
-  );
-}
-
-function Swatch({ id, color, onClick }) {
-  return (
-    <div
-      style={{
-        width: "50px",
-        height: "50px",
-        backgroundColor: color,
-        cursor: "pointer",
-      }}
-      onClick={() => onClick(id)}
-    ></div>
   );
 }

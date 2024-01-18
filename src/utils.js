@@ -23,6 +23,9 @@ const MID_RELATIVE_LUMINANCE = 0.1791104;
 export function derive(hswl, opts = {}) {
   let newHswl = { ...hswl };
 
+  // TODO - need to check for null explicitly, 0 is falsy!
+  //      - use switch statements
+
   // setting hue
   if (opts.fixHue) {
     newHswl.h = opts.fixHue;

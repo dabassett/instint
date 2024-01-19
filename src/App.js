@@ -336,6 +336,8 @@ export default function App() {
   // generates the sliders, toggles and other controls for the
   //  selected swatch
   const PaletteSliders = () => {
+    const color = toHex(activeSwatch.hswl);
+
     // set default slider settings
     let hueSliderSettings = {
       min: 0,
@@ -345,6 +347,7 @@ export default function App() {
       scale: hueScale,
       value: activeSwatch.hswl.h,
       gradient: getGradient(activeSwatch.hswl, "h"),
+      color: color,
       onChange: handleHueSliderChange,
     };
 
@@ -356,6 +359,7 @@ export default function App() {
       scale: x100Scale,
       value: activeSwatch.hswl.s,
       gradient: getGradient(activeSwatch.hswl, "s"),
+      color: color,
       onChange: handleSatSliderChange,
     };
 
@@ -367,6 +371,7 @@ export default function App() {
       scale: x100Scale,
       value: activeSwatch.hswl.wl,
       gradient: getGradient(activeSwatch.hswl, "wl"),
+      color: color,
       onChange: handleLumSliderChange,
     };
 

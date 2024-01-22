@@ -17,7 +17,7 @@ export default function GradientSlider({
   };
 
   return (
-    <Box sx={{ width: 300 }}>
+    <Box sx={{ width: 600 }}>
       <Slider
         {...props}
         value={value}

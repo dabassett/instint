@@ -1,4 +1,4 @@
-import { toHex, lerp } from "./utils.js";
+import { toHex, lerp, derive } from "./utils.js";
 import GradientSlider from "./GradientSlider.js";
 import ToggleButton from "@mui/material/ToggleButton";
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
@@ -127,7 +127,7 @@ function getSliderSettings(swatch, id, parentHswl, dispatch) {
         value: swatch.contrast,
         onChange: (e) =>
           dispatch({ type: "changed_contrast", id: id, value: e.target.value }),
-        gradient: lumGradient,
+        gradient: getGradient({ ...swatch.hswl, wl: parentHswl.wl }, "con"),
       },
 
       adjust: {
@@ -173,10 +173,13 @@ function hueScale(value) {
 // generate a css gradient by varying an attribute of an HSWL
 //  color while keeping the other attributes fixed
 //
-// attr => the hswl attribute to vary
-//   'h'  == hue,
-//   's'  == saturation,
-//   'wl' == luminance
+// attr => the color attribute to vary
+//   'h' => hue,
+//   's' => saturation,
+//   'wl' => luminance,
+//   'con' => contrast ratio with parent
+//
+// (note: for a contrast gradient, pass the parent's luminance in 'hswl')
 //
 // begin => starting value of the gradient
 // end   => final value of the gradient
@@ -193,6 +196,7 @@ const getGradient = (
     h: { begin: 0, end: 360 },
     s: { begin: 0, end: 1 },
     wl: { begin: 0, end: 1 },
+    con: { begin: 1, end: 21 },
   };
 
   // allow overriding the interpolation range
@@ -204,10 +208,16 @@ const getGradient = (
   let stops = [];
   for (let i = 0; i < numStops; i++) {
     const progress = i / (numStops - 1);
-    const colorStop = toHex({
-      ...hswl,
-      [attr]: lerp(beginVal, endVal, progress),
-    });
+    // linear interpolate the attribute's range
+    const newAttr = lerp(beginVal, endVal, progress);
+
+    const colorStop =
+      attr === "con"
+        ? // for contrast gradients, each stop must be derived
+          toHex(derive(hswl, { contrast: newAttr }))
+        : // other hswl gradients can simply be converted to rgb-space
+          toHex({ ...hswl, [attr]: newAttr });
+
     stops.push(`${colorStop} ${progress * 100}%`);
   }
 

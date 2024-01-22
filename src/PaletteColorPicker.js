@@ -5,6 +5,8 @@ import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import Typography from "@mui/material/Typography";
+import Stack from "@mui/material/Stack";
+import Divider from "@mui/material/Divider";
 import Grid from "@mui/material/Unstable_Grid2";
 
 // create the prop settings for each type of gradient slider
@@ -22,9 +24,10 @@ function getSliderSettings(swatch, id, parentHswl, dispatch) {
     color: swatchColor,
   };
 
-  return {
-    hue: {
-      parent: {
+  // render simplified color controls when the swatch has no parent
+  if (swatch.parentId === null) {
+    return {
+      hue: {
         ...defaultSliderSettings,
         label: "Hue",
         max: 360,
@@ -35,8 +38,31 @@ function getSliderSettings(swatch, id, parentHswl, dispatch) {
           dispatch({ type: "changed_hue", id: id, value: e.target.value }),
         gradient: hueGradient,
       },
+      sat: {
+        ...defaultSliderSettings,
+        label: "Saturation",
+        value: swatch.hswl.s,
+        onChange: (e) =>
+          dispatch({ type: "changed_sat", id: id, value: e.target.value }),
+        gradient: satGradient,
+      },
+      lum: {
+        ...defaultSliderSettings,
+        label: "Luminance",
+        value: swatch.hswl.wl,
+        onChange: (e) =>
+          dispatch({ type: "changed_lum", id: id, value: e.target.value }),
+        gradient: lumGradient,
+      },
+    };
+  }
 
-      adjust: {
+  // swatches with a parent have more options that affect the slider config
+  let hueSettings;
+  // eslint-disable-next-line default-case
+  switch (swatch.toggleOpts.h) {
+    case "adjust":
+      hueSettings = {
         ...defaultSliderSettings,
         label: "Adjust Hue",
         min: -180,
@@ -56,9 +82,10 @@ function getSliderSettings(swatch, id, parentHswl, dispatch) {
           parentHswl.h - 180,
           parentHswl.h + 180,
         ),
-      },
-
-      fix: {
+      };
+      break;
+    case "fix":
+      hueSettings = {
         ...defaultSliderSettings,
         label: "Fix Hue",
         min: 0,
@@ -69,20 +96,15 @@ function getSliderSettings(swatch, id, parentHswl, dispatch) {
         onChange: (e) =>
           dispatch({ type: "changed_fix_hue", id: id, value: e.target.value }),
         gradient: hueGradient,
-      },
-    },
+      };
+      break;
+  }
 
-    sat: {
-      parent: {
-        ...defaultSliderSettings,
-        label: "Saturation",
-        value: swatch.hswl.s,
-        onChange: (e) =>
-          dispatch({ type: "changed_sat", id: id, value: e.target.value }),
-        gradient: satGradient,
-      },
-
-      adjust: {
+  let satSettings;
+  // eslint-disable-next-line default-case
+  switch (swatch.toggleOpts.s) {
+    case "adjust":
+      satSettings = {
         ...defaultSliderSettings,
         label: "Adjust Saturation",
         min: -parentHswl.s,
@@ -95,42 +117,25 @@ function getSliderSettings(swatch, id, parentHswl, dispatch) {
             value: e.target.value,
           }),
         gradient: satGradient,
-      },
-
-      fix: {
+      };
+      break;
+    case "fix":
+      satSettings = {
         ...defaultSliderSettings,
         label: "Fix Saturation",
         value: swatch.fixHswl.s,
         onChange: (e) =>
           dispatch({ type: "changed_fix_sat", id: id, value: e.target.value }),
         gradient: satGradient,
-      },
-    },
+      };
+      break;
+  }
 
-    lum: {
-      parent: {
-        ...defaultSliderSettings,
-        label: "Luminance",
-        value: swatch.hswl.wl,
-        onChange: (e) =>
-          dispatch({ type: "changed_lum", id: id, value: e.target.value }),
-        gradient: lumGradient,
-      },
-
-      contrast: {
-        ...defaultSliderSettings,
-        label: "Contrast Ratio",
-        min: 1,
-        max: 21,
-        step: 0.1,
-        scale: (n) => n,
-        value: swatch.contrast,
-        onChange: (e) =>
-          dispatch({ type: "changed_contrast", id: id, value: e.target.value }),
-        gradient: getGradient({ ...swatch.hswl, wl: parentHswl.wl }, "con"),
-      },
-
-      adjust: {
+  let lumSettings;
+  // eslint-disable-next-line default-case
+  switch (swatch.toggleOpts.s) {
+    case "adjust":
+      lumSettings = {
         ...defaultSliderSettings,
         label: "Adjust Luminance",
         min: -parentHswl.wl,
@@ -143,16 +148,80 @@ function getSliderSettings(swatch, id, parentHswl, dispatch) {
             value: e.target.value,
           }),
         gradient: lumGradient,
-      },
-
-      fix: {
+      };
+      break;
+    case "fix":
+      lumSettings = {
         ...defaultSliderSettings,
         label: "Fix Luminance",
         value: swatch.fixHswl.wl,
         onChange: (e) =>
           dispatch({ type: "changed_fix_lum", id: id, value: e.target.value }),
         gradient: lumGradient,
-      },
+      };
+      break;
+    case "contrast":
+      lumSettings = {
+        ...defaultSliderSettings,
+        label: "Contrast Ratio",
+        min: 1,
+        max: 21,
+        step: 0.1,
+        scale: (n) => n,
+        value: swatch.contrast,
+        onChange: (e) =>
+          dispatch({ type: "changed_contrast", id: id, value: e.target.value }),
+        gradient: getGradient({ ...swatch.hswl, wl: parentHswl.wl }, "con"),
+      };
+      break;
+  }
+
+  return {
+    hue: hueSettings,
+    sat: satSettings,
+    lum: lumSettings,
+  };
+}
+
+function getToggleSettings(swatch, id, dispatch) {
+  const defaultToggleSettings = {
+    // the toggle button controls are hidden when the rendered swatch
+    //  has no parent
+    sx: { display: swatch.parentId === null ? "none" : "block" },
+    exclusive: true,
+    size: "small",
+  };
+
+  return {
+    hue: {
+      ...defaultToggleSettings,
+      value: swatch.toggleOpts.h,
+      onChange: (e) =>
+        dispatch({
+          type: "changed_hue_toggle",
+          id: id,
+          value: e.target.value,
+        }),
+    },
+    sat: {
+      ...defaultToggleSettings,
+      value: swatch.toggleOpts.s,
+      onChange: (e) =>
+        dispatch({
+          type: "changed_sat_toggle",
+          id: id,
+          value: e.target.value,
+        }),
+    },
+    lum: {
+      ...defaultToggleSettings,
+      value: swatch.toggleOpts.wl,
+      onChange: (e) =>
+        dispatch({
+          type: "changed_lum_toggle",
+          id: id,
+          value: e.target.value,
+        }),
     },
   };
 }
@@ -232,6 +301,7 @@ export default function PaletteColorPicker({
   parentHswl,
   dispatch,
 }) {
+  const toggleSettings = getToggleSettings(swatch, swatchId, dispatch);
   const sliderSettings = getSliderSettings(
     swatch,
     swatchId,
@@ -239,79 +309,52 @@ export default function PaletteColorPicker({
     dispatch,
   );
 
-  const hueToggleControls = {
-    value: swatch.toggleOpts.h,
-    onChange: (e) =>
-      dispatch({
-        type: "changed_hue_toggle",
-        id: swatchId,
-        value: e.target.value,
-      }),
-    exclusive: true,
-    size: "small",
-  };
-  const satToggleControls = {
-    value: swatch.toggleOpts.s,
-    onChange: (e) =>
-      dispatch({
-        type: "changed_sat_toggle",
-        id: swatchId,
-        value: e.target.value,
-      }),
-    exclusive: true,
-    size: "small",
-  };
-  const lumToggleControls = {
-    value: swatch.toggleOpts.wl,
-    onChange: (e) =>
-      dispatch({
-        type: "changed_lum_toggle",
-        id: swatchId,
-        value: e.target.value,
-      }),
-    exclusive: true,
-    size: "small",
-  };
-
-  // render slider controls for swatches inheriting from a parent color
-  if (swatch.parentId !== null) {
-    const hueSliderSettings = sliderSettings.hue[swatch.toggleOpts.h];
-    const satSliderSettings = sliderSettings.sat[swatch.toggleOpts.s];
-    const lumSliderSettings = sliderSettings.lum[swatch.toggleOpts.wl];
-
-    return (
-      <>
-        <ToggleButtonGroup {...hueToggleControls}>
-          <ToggleButton value="adjust">Adj</ToggleButton>
-          <ToggleButton value="fix">Fix</ToggleButton>
-        </ToggleButtonGroup>
-
-        <GradientSlider {...hueSliderSettings} />
-
-        <ToggleButtonGroup {...satToggleControls}>
-          <ToggleButton value="adjust">Adj</ToggleButton>
-          <ToggleButton value="fix">Fix</ToggleButton>
-        </ToggleButtonGroup>
-
-        <GradientSlider {...satSliderSettings} />
-
-        <ToggleButtonGroup {...lumToggleControls}>
-          <ToggleButton value="contrast">Contrast</ToggleButton>
-          <ToggleButton value="adjust">Adj</ToggleButton>
-          <ToggleButton value="fix">Fix</ToggleButton>
-        </ToggleButtonGroup>
-
-        <GradientSlider {...lumSliderSettings} />
-      </>
-    );
-  }
-
-  // render simplified swatch options when there is no parent
   return (
     <>
-      <GradientSlider {...sliderSettings.hue.parent} />
-      <GradientSlider {...sliderSettings.sat.parent} />
-      <GradientSlider {...sliderSettings.lum.parent} />
+      <Grid container spacing={2}>
+        <Grid xs={4} md={2}>
+          <Stack
+            justifyContent="flex-end"
+            alignItems="flex-end"
+            spacing={1}
+            divider={<Divider orientation="horizontal" flexItem />}
+          >
+            <Typography gutterBottom>HUE</Typography>
+
+            <ToggleButtonGroup {...toggleSettings.hue}>
+              <ToggleButton value="adjust">Adj</ToggleButton>
+              <ToggleButton value="fix">Fix</ToggleButton>
+            </ToggleButtonGroup>
+          </Stack>
+        </Grid>
+
+        <Grid xs={8} md={10}>
+          <GradientSlider {...sliderSettings.hue} />
+        </Grid>
+
+        <Grid xs={4}>
+          <ToggleButtonGroup {...toggleSettings.sat}>
+            <ToggleButton value="adjust">Adj</ToggleButton>
+            <ToggleButton value="fix">Fix</ToggleButton>
+          </ToggleButtonGroup>
+        </Grid>
+
+        <Grid xs={8}>
+          <GradientSlider {...sliderSettings.sat} />
+        </Grid>
+
+        <Grid xs={4}>
+          <ToggleButtonGroup {...toggleSettings.lum}>
+            <ToggleButton value="contrast">Contrast</ToggleButton>
+            <ToggleButton value="adjust">Adj</ToggleButton>
+            <ToggleButton value="fix">Fix</ToggleButton>
+          </ToggleButtonGroup>
+        </Grid>
+
+        <Grid xs={8}>
+          <GradientSlider {...sliderSettings.lum} />
+        </Grid>
+      </Grid>
     </>
   );
 }

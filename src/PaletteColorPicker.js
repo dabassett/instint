@@ -133,7 +133,7 @@ function getSliderSettings(swatch, id, parentHswl, dispatch) {
 
   let lumSettings;
   // eslint-disable-next-line default-case
-  switch (swatch.toggleOpts.s) {
+  switch (swatch.toggleOpts.wl) {
     case "adjust":
       lumSettings = {
         ...defaultSliderSettings,

@@ -1,13 +1,17 @@
 import { useState, useReducer } from "react";
-import { randomColor, derive, toHex } from "./utils.js";
-import PaletteColorPicker from "./PaletteColorPicker.js";
-import Swatch from "./Swatch.js";
-import Button from "@mui/material/Button";
+
+import { ThemeProvider } from "@mui/material/styles";
+import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
+import Grid from "@mui/material/Unstable_Grid2";
+import Button from "@mui/material/Button";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
-import Typography from "@mui/material/Typography";
-import Grid from "@mui/material/Unstable_Grid2";
+
+import theme from "./Theme.js";
+import { randomColor, derive, toHex } from "./utils.js";
+import Swatch from "./Swatch.js";
+import PaletteColorPicker from "./PaletteColorPicker.js";
 
 // TODO install material icons
 //      https://mui.com/material-ui/getting-started/installation/#icons
@@ -54,13 +58,13 @@ const swatchDefaults = () => {
     // toggles which configuration options to use when deriving the swatch's
     //  final color
     toggleOpts: { h: "adjust", s: "adjust", wl: "contrast" },
-  }
+  };
 };
 
 const initialSwatches = {
   0: { ...swatchDefaults(), hswl: randomColor() },
   1: { ...swatchDefaults(), parentId: "0", contrast: 3.5 },
-  2: { ...swatchDefaults(), parentId: "0", contrast: 5, },
+  2: { ...swatchDefaults(), parentId: "0", contrast: 5 },
   3: { ...swatchDefaults(), parentId: "0", contrast: 7 },
 };
 
@@ -233,83 +237,85 @@ export default function App() {
 
   // todo separate text tags from swatch components
   return (
-    <div className="App">
-      <h1>Instint</h1>
+    <ThemeProvider theme={theme}>
+      <div className="App">
+        <h1>Instint</h1>
 
-      <Card
-        variant="outlined"
-        sx={{ minWidth: 275, width: 500 }}
-        style={{
-          background: toHex(bgColor),
-          border: `1px ${toHex(textAAAColor)} solid`,
-          outline: `1px ${toHex(textAColor)} solid`,
-        }}
-      >
-        <CardContent>
-          <Typography
-            sx={{ fontSize: 28 }}
-            style={{
-              color: toHex(textAColor),
-            }}
-            gutterBottom
-          >
-            Welcome to Instint!
-          </Typography>
-          <Typography
-            sx={{ fontSize: 18 }}
-            style={{
-              color: toHex(textAAColor),
-            }}
-            gutterBottom
-          >
-            Here to help designers pair text and background colors that are both
-            beautiful and easy to read
-          </Typography>
-          <Typography
-            sx={{ fontSize: 14 }}
-            style={{
-              color: toHex(textAAAColor),
-            }}
-            gutterBottom
-          >
-            Instint can take any color and generate analogous colors that
-            satisfy WCAG 2.1 contrast ratio requirements. This means that you no
-            longer need to fiddle with finicky formulae to create perfect color
-            palettes.
-          </Typography>
-        </CardContent>
-      </Card>
+        <Card
+          variant="outlined"
+          sx={{ minWidth: 275, width: 500 }}
+          style={{
+            background: toHex(bgColor),
+            border: `1px ${toHex(textAAAColor)} solid`,
+            outline: `1px ${toHex(textAColor)} solid`,
+          }}
+        >
+          <CardContent>
+            <Typography
+              sx={{ fontSize: 28 }}
+              style={{
+                color: toHex(textAColor),
+              }}
+              gutterBottom
+            >
+              Welcome to Instint!
+            </Typography>
+            <Typography
+              sx={{ fontSize: 18 }}
+              style={{
+                color: toHex(textAAColor),
+              }}
+              gutterBottom
+            >
+              Here to help designers pair text and background colors that are
+              both beautiful and easy to read
+            </Typography>
+            <Typography
+              sx={{ fontSize: 14 }}
+              style={{
+                color: toHex(textAAAColor),
+              }}
+              gutterBottom
+            >
+              Instint can take any color and generate analogous colors that
+              satisfy WCAG 2.1 contrast ratio requirements. This means that you
+              no longer need to fiddle with finicky formulae to create perfect
+              color palettes.
+            </Typography>
+          </CardContent>
+        </Card>
 
-      {/* create new swatch button */}
-      <Button variant="contained" onClick={handleNewSwatchClick}>
-        Add Swatch
-      </Button>
+        {/* create new swatch button */}
+        <Button variant="contained" onClick={handleNewSwatchClick}>
+          Add Swatch
+        </Button>
 
-      <Button
-        variant="contained"
-        onClick={(e) => dispatch({ type: "random_color", id: swatchId })}
-      >
-        Randomize Color
-      </Button>
+        <Button
+          variant="contained"
+          onClick={(e) => dispatch({ type: "random_color", id: swatchId })}
+        >
+          Randomize Color
+        </Button>
 
-      {Object.keys(swatches).map((id) => {
-        return (
-          // TODO the key should be a uuid, (immutable, unique) to prevent unnecessary rerenders
-          <Swatch
-            key={id}
-            id={id}
-            hswl={swatches[id].hswl}
-            onClick={handleSwatchClick}
-          />
-        );
-      })}
+        {Object.keys(swatches).map((id) => {
+          return (
+            // TODO the key should be a uuid, (immutable, unique) to prevent unnecessary rerenders
+            <Swatch
+              key={id}
+              id={id}
+              hswl={swatches[id].hswl}
+              onClick={handleSwatchClick}
+            />
+          );
+        })}
 
-      <PaletteColorPicker
-        swatch={activeSwatch}
-        swatchId={swatchId}
-        parentHswl={parentHswl}
-        dispatch={dispatch}
-      />
-    </div>
+        <PaletteColorPicker
+          swatch={activeSwatch}
+          swatchId={swatchId}
+          parentHswl={parentHswl}
+          dispatch={dispatch}
+        />
+      </div>
+    </ThemeProvider>
   );
 }

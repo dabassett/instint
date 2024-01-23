@@ -25,13 +25,13 @@ export default function GradientSlider({
         valueLabelDisplay="auto"
         sx={{
           borderRadius: "2px",
-          height: 40,
+          height: { xs: 5, sm: 40 },
 
           "& .MuiSlider-rail": {
             visibility: "hidden",
           },
           "& .MuiSlider-thumb": {
-            height: 70,
+            height: { xs: 35, sm: 70 },
             width: 20,
             border: "1px solid black",
             outline: "1px solid white",
@@ -63,7 +63,7 @@ export default function GradientSlider({
             },
           },
         }}
-        // style is used for dynamic values to place the styles inline
+        // the style prop is used to force inline css for the dynamic background
         //  otherwise MUI will put new stylesheets in <head> on each update,
         //  resulting in a memory leak
         style={{

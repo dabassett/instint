@@ -1,13 +1,17 @@
-import { toHex, lerp, derive } from "./utils.js";
-import GradientSlider from "./GradientSlider.js";
+import { ThemeProvider } from "@mui/material/styles";
 import ToggleButton from "@mui/material/ToggleButton";
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import Card from "@mui/material/Card";
+import Box from "@mui/material/Box";
 import CardContent from "@mui/material/CardContent";
 import Typography from "@mui/material/Typography";
 import Stack from "@mui/material/Stack";
 import Divider from "@mui/material/Divider";
 import Grid from "@mui/material/Unstable_Grid2";
+
+import { toHex, lerp, derive } from "./utils.js";
+import GradientSlider from "./GradientSlider.js";
+import paletteColorPickerTheme from "./PaletteColorPicker.theme.js"
 
 // create the prop settings for each type of gradient slider
 function getSliderSettings(swatch, id, parentHswl, dispatch) {
@@ -311,50 +315,63 @@ export default function PaletteColorPicker({
 
   return (
     <>
-      <Grid container spacing={2}>
-        <Grid xs={4} md={2}>
-          <Stack
-            justifyContent="flex-end"
-            alignItems="flex-end"
-            spacing={1}
-            divider={<Divider orientation="horizontal" flexItem />}
-          >
-            <Typography gutterBottom>HUE</Typography>
+      <ThemeProvider theme={paletteColorPickerTheme}>
+        <Grid container spacing={1}>
+          <Grid xs={12} sm={4} md={3} lg={2}>
+            <Stack>
+              <Typography variant="subtitle1">HUE</Typography>
 
-            <ToggleButtonGroup {...toggleSettings.hue}>
-              <ToggleButton value="adjust">Adj</ToggleButton>
-              <ToggleButton value="fix">Fix</ToggleButton>
-            </ToggleButtonGroup>
-          </Stack>
-        </Grid>
+              <ToggleButtonGroup {...toggleSettings.hue}>
+                <ToggleButton value="adjust">Adj</ToggleButton>
+                <ToggleButton value="fix">Fix</ToggleButton>
+              </ToggleButtonGroup>
+            </Stack>
+          </Grid>
 
-        <Grid xs={8} md={10}>
-          <GradientSlider {...sliderSettings.hue} />
-        </Grid>
+          <Grid xs={12} sm={8} md={9} lg={10}>
+            <GradientSlider {...sliderSettings.hue} />
+          </Grid>
 
-        <Grid xs={4}>
-          <ToggleButtonGroup {...toggleSettings.sat}>
-            <ToggleButton value="adjust">Adj</ToggleButton>
-            <ToggleButton value="fix">Fix</ToggleButton>
-          </ToggleButtonGroup>
-        </Grid>
+          <Grid xs={12}>
+            <Divider orientation="horizontal" flexItem />
+          </Grid>
 
-        <Grid xs={8}>
-          <GradientSlider {...sliderSettings.sat} />
-        </Grid>
+          <Grid xs={12} sm={4} md={3} lg={2}>
+            <Stack>
+              <Typography variant="subtitle1">SATURATION</Typography>
 
-        <Grid xs={4}>
-          <ToggleButtonGroup {...toggleSettings.lum}>
-            <ToggleButton value="contrast">Contrast</ToggleButton>
-            <ToggleButton value="adjust">Adj</ToggleButton>
-            <ToggleButton value="fix">Fix</ToggleButton>
-          </ToggleButtonGroup>
-        </Grid>
+              <ToggleButtonGroup {...toggleSettings.sat}>
+                <ToggleButton value="adjust">Adj</ToggleButton>
+                <ToggleButton value="fix">Fix</ToggleButton>
+              </ToggleButtonGroup>
+            </Stack>
+          </Grid>
 
-        <Grid xs={8}>
-          <GradientSlider {...sliderSettings.lum} />
+          <Grid xs={12} sm={8} md={9} lg={10}>
+            <GradientSlider {...sliderSettings.sat} />
+          </Grid>
+
+          <Grid xs={12}>
+            <Divider orientation="horizontal" flexItem />
+          </Grid>
+
+          <Grid xs={12} sm={4} md={3} lg={2}>
+            <Stack>
+              <Typography variant="subtitle1">LUMINANCE</Typography>
+
+              <ToggleButtonGroup {...toggleSettings.lum}>
+                <ToggleButton value="contrast">Contrast</ToggleButton>
+                <ToggleButton value="adjust">Adj</ToggleButton>
+                <ToggleButton value="fix">Fix</ToggleButton>
+              </ToggleButtonGroup>
+            </Stack>
+          </Grid>
+
+          <Grid xs={12} sm={8} md={9} lg={10}>
+            <GradientSlider {...sliderSettings.lum} />
+          </Grid>
         </Grid>
-      </Grid>
+      </ThemeProvider>
     </>
   );
 }

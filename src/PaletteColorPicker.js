@@ -316,7 +316,7 @@ export default function PaletteColorPicker({
   return (
     <>
       <ThemeProvider theme={paletteColorPickerTheme}>
-        <Grid container spacing={1}>
+        <Grid container spacing={2}>
           <Grid xs={12} sm={4} md={3} lg={2}>
             <Stack>
               <Typography variant="subtitle1">HUE</Typography>

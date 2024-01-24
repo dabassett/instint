@@ -1,4 +1,4 @@
-import { styled } from '@mui/material/styles';
+import { styled } from "@mui/material/styles";
 import Card from "@mui/material/Card";
 import CardHeader from "@mui/material/CardHeader";
 import CardContent from "@mui/material/CardContent";
@@ -9,7 +9,7 @@ import { derive, toHex } from "./utils.js";
 const ReactiveCard = styled(Card)`
   ${({ theme }) => `
   cursor: pointer;
-  transition: ${theme.transitions.create(['background-color', 'transform'], {
+  transition: ${theme.transitions.create(["background-color", "transform"], {
     duration: theme.transitions.duration.shorter,
   })};
   &:hover {
@@ -27,7 +27,7 @@ export default function Swatch({ id, hswl, onClick }) {
   return (
     <ReactiveCard
       variant="outlined"
-      sx={{ width: 120, height: 60 }}
+      sx={{ width: "100%", height: 60 }}
       style={{
         background: color,
       }}

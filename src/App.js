@@ -16,6 +16,8 @@ import PaletteColorPicker from "./PaletteColorPicker.js";
 // TODO install material icons
 //      https://mui.com/material-ui/getting-started/installation/#icons
 
+// TODO swatch keys should be a uuid, (immutable, unique) to prevent unnecessary rerenders
+
 // TODO - if I get around to adding inheritance chains, don't forget to traverse
 //         up the tree to check for inheritance cycles
 //        - could also detect cycles by counting, if the count
@@ -302,17 +304,25 @@ export default function App() {
           Randomize Color
         </Button>
 
-        {Object.keys(swatches).map((id) => {
-          return (
-            // TODO the key should be a uuid, (immutable, unique) to prevent unnecessary rerenders
-            <Swatch
-              key={id}
-              id={id}
-              hswl={swatches[id].hswl}
-              onClick={handleSwatchClick}
-            />
-          );
-        })}
+        <Grid
+          container
+          rowSpacing={0.6}
+          columnSpacing={0.7}
+          sx={{ margin: "15px 0" }}
+        >
+          {Object.keys(swatches).map((id) => {
+            return (
+              <Grid key={id} xs={4} sm={3} md={2}>
+                <Swatch
+                  key={id}
+                  id={id}
+                  hswl={swatches[id].hswl}
+                  onClick={handleSwatchClick}
+                />
+              </Grid>
+            );
+          })}
+        </Grid>
 
         <PaletteColorPicker
           swatch={activeSwatch}

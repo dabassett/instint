@@ -16,8 +16,6 @@ import PaletteColorPicker from "./PaletteColorPicker.js";
 // TODO install material icons
 //      https://mui.com/material-ui/getting-started/installation/#icons
 
-// TODO don't forget the utils derive equality bug
-
 // TODO - if I get around to adding inheritance chains, don't forget to traverse
 //         up the tree to check for inheritance cycles
 //        - could also detect cycles by counting, if the count
@@ -37,7 +35,6 @@ import PaletteColorPicker from "./PaletteColorPicker.js";
 // TODO features
 // - warning icons and descriptions when colors don't satisfy contrast requirements
 // - swatch names
-// - swatches display hex codes
 // - palette dump to plaintext css and json
 // - multiple palettes for more page variety
 // - configurable inheritance
@@ -69,7 +66,10 @@ const setupInit = {
   2: { ...swatchDefaults(), parentId: "0", contrast: 5 },
   3: { ...swatchDefaults(), parentId: "0", contrast: 7 },
 };
-const initialSwatches = reducer(setupInit, {type: "derive_children", id: "0"});
+const initialSwatches = reducer(setupInit, {
+  type: "derive_children",
+  id: "0",
+});
 
 // transform the swatch's state into options for utils.derive
 function swatchOptions(swatch) {

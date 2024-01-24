@@ -61,12 +61,15 @@ const swatchDefaults = () => {
   };
 };
 
-const initialSwatches = {
+// configure the initial swatches, child swatch colors will be calculated from
+//  their parent swatch
+const setupInit = {
   0: { ...swatchDefaults(), hswl: randomColor() },
   1: { ...swatchDefaults(), parentId: "0", contrast: 3.5 },
   2: { ...swatchDefaults(), parentId: "0", contrast: 5 },
   3: { ...swatchDefaults(), parentId: "0", contrast: 7 },
 };
+const initialSwatches = reducer(setupInit, {type: "derive_children", id: "0"});
 
 // transform the swatch's state into options for utils.derive
 function swatchOptions(swatch) {
@@ -143,6 +146,9 @@ function reducer(swatches, action) {
   let nextSwatch = { ...swatches[action.id] };
 
   switch (action.type) {
+    case "derive_children":
+      // used during init to calculate the dependent swatch color
+      break;
     case "changed_hue":
       nextSwatch.hswl.h = action.value;
       break;
@@ -211,7 +217,6 @@ function reducer(swatches, action) {
 
 export default function App() {
   const [swatchId, setSwatchId] = useState("0");
-  //const [swatches, setSwatches] = useState(initialSwatches);
   const [swatches, dispatch] = useReducer(reducer, initialSwatches);
 
   const activeSwatch = swatches[swatchId];

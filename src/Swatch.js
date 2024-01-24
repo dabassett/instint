@@ -18,7 +18,7 @@ const ReactiveCard = styled(Card)`
   `}
 `;
 
-export default function Swatch({ id, hswl, onClick }) {
+export default function Swatch({ id, hswl, active, onClick }) {
   const color = toHex(hswl);
   const textColor = toHex(
     derive(hswl, { contrast: 5, adjustHue: 15, adjustSat: -0.2 }),
@@ -30,13 +30,18 @@ export default function Swatch({ id, hswl, onClick }) {
       sx={{ width: "100%", height: 60 }}
       style={{
         background: color,
+        borderTop: active
+          ? `3px dotted ${textColor}`
+          : "3px dotted transparent",
+        borderBottom: active
+          ? `3px dotted ${textColor}`
+          : "3px dotted transparent",
       }}
       onClick={() => onClick(id)}
     >
       <CardContent>
         <Typography
           variant="h6"
-          //sx={{ fontSize: 22 }}
           style={{
             color: textColor,
           }}

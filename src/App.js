@@ -312,11 +312,11 @@ export default function App() {
         >
           {Object.keys(swatches).map((id) => {
             return (
-              <Grid key={id} xs={4} sm={3} md={2}>
+              <Grid key={id} xs={4} sm={3} md={2} xl={1}>
                 <Swatch
-                  key={id}
                   id={id}
                   hswl={swatches[id].hswl}
+                  active={id === swatchId}
                   onClick={handleSwatchClick}
                 />
               </Grid>

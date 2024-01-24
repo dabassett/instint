@@ -197,7 +197,7 @@ function reducer(swatches, action) {
     case "new_swatch":
       // TODO hardcoded attributes
       nextSwatch = {
-        ...swatchDefaults,
+        ...swatchDefaults(),
         color: randomColor(),
         parentId: "0",
       };

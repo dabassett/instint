@@ -9,9 +9,10 @@ import Stack from "@mui/material/Stack";
 import Divider from "@mui/material/Divider";
 import Grid from "@mui/material/Unstable_Grid2";
 
+import paletteColorPickerTheme from "./PaletteColorPicker.theme.js";
 import { toHex, lerp, derive } from "./utils.js";
 import GradientSlider from "./GradientSlider.js";
-import paletteColorPickerTheme from "./PaletteColorPicker.theme.js"
+import PaletteToggleButton from "./PaletteToggleButton.js";
 
 // create the prop settings for each type of gradient slider
 function getSliderSettings(swatch, id, parentHswl, dispatch) {
@@ -303,6 +304,7 @@ export default function PaletteColorPicker({
   swatch,
   swatchId,
   parentHswl,
+  palette,
   dispatch,
 }) {
   const toggleSettings = getToggleSettings(swatch, swatchId, dispatch);
@@ -313,17 +315,45 @@ export default function PaletteColorPicker({
     dispatch,
   );
 
+  const labelStyles = {
+    style: {
+      background: palette.bgWell,
+      color: palette.bgWellText,
+    },
+  };
+
+  const buttonProps = {
+    dynamicColors: {
+      color: palette.buttonText,
+      backgroundSelected: palette.button,
+      colorUnselected: palette.buttonTextDisabled,
+      backgroundUnselected: palette.buttonDisabled,
+    },
+  };
+
+  const dividerProps = {
+    style: {
+      borderColor: palette.bgWellText,
+    },
+  };
+
   return (
     <>
       <ThemeProvider theme={paletteColorPickerTheme}>
         <Grid container spacing={2}>
           <Grid xs={12} sm={4} md={3} lg={2}>
             <Stack>
-              <Typography variant="subtitle1">HUE</Typography>
+              <Typography variant="subtitle1" {...labelStyles}>
+                HUE
+              </Typography>
 
               <ToggleButtonGroup {...toggleSettings.hue}>
-                <ToggleButton value="adjust">Adj</ToggleButton>
-                <ToggleButton value="fix">Fix</ToggleButton>
+                <PaletteToggleButton value="adjust" {...buttonProps}>
+                  Adj
+                </PaletteToggleButton>
+                <PaletteToggleButton value="fix" {...buttonProps}>
+                  Fix
+                </PaletteToggleButton>
               </ToggleButtonGroup>
             </Stack>
           </Grid>
@@ -333,16 +363,22 @@ export default function PaletteColorPicker({
           </Grid>
 
           <Grid xs={12}>
-            <Divider orientation="horizontal" flexItem />
+            <Divider orientation="horizontal" flexItem {...dividerProps} />
           </Grid>
 
           <Grid xs={12} sm={4} md={3} lg={2}>
             <Stack>
-              <Typography variant="subtitle1">SATURATION</Typography>
+              <Typography variant="subtitle1" {...labelStyles}>
+                SATURATION
+              </Typography>
 
               <ToggleButtonGroup {...toggleSettings.sat}>
-                <ToggleButton value="adjust">Adj</ToggleButton>
-                <ToggleButton value="fix">Fix</ToggleButton>
+                <PaletteToggleButton value="adjust" {...buttonProps}>
+                  Adj
+                </PaletteToggleButton>
+                <PaletteToggleButton value="fix" {...buttonProps}>
+                  Fix
+                </PaletteToggleButton>
               </ToggleButtonGroup>
             </Stack>
           </Grid>
@@ -352,17 +388,25 @@ export default function PaletteColorPicker({
           </Grid>
 
           <Grid xs={12}>
-            <Divider orientation="horizontal" flexItem />
+            <Divider orientation="horizontal" flexItem {...dividerProps} />
           </Grid>
 
           <Grid xs={12} sm={4} md={3} lg={2}>
             <Stack>
-              <Typography variant="subtitle1">LUMINANCE</Typography>
+              <Typography variant="subtitle1" {...labelStyles}>
+                LUMINANCE
+              </Typography>
 
               <ToggleButtonGroup {...toggleSettings.lum}>
-                <ToggleButton value="contrast">Contrast</ToggleButton>
-                <ToggleButton value="adjust">Adj</ToggleButton>
-                <ToggleButton value="fix">Fix</ToggleButton>
+                <PaletteToggleButton value="contrast" {...buttonProps}>
+                  Contrast
+                </PaletteToggleButton>
+                <PaletteToggleButton value="adjust" {...buttonProps}>
+                  Adj
+                </PaletteToggleButton>
+                <PaletteToggleButton value="fix" {...buttonProps}>
+                  Fix
+                </PaletteToggleButton>
               </ToggleButtonGroup>
             </Stack>
           </Grid>

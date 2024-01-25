@@ -1,6 +1,7 @@
 import { useState, useReducer } from "react";
 
 import { ThemeProvider } from "@mui/material/styles";
+import GlobalStyles from "@mui/material/GlobalStyles";
 import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Unstable_Grid2";
@@ -37,6 +38,8 @@ import PaletteColorPicker from "./PaletteColorPicker.js";
 // TODO features
 // - warning icons and descriptions when colors don't satisfy contrast requirements
 // - swatch names
+//   - then, create the palette object in a constructor, building from the existing names
+//     and programmatically assign names and non-swatch colors
 // - palette dump to plaintext css and json
 // - multiple palettes for more page variety
 // - configurable inheritance
@@ -67,7 +70,28 @@ const setupInit = {
   1: { ...swatchDefaults(), parentId: "0", contrast: 3.5 },
   2: { ...swatchDefaults(), parentId: "0", contrast: 5 },
   3: { ...swatchDefaults(), parentId: "0", contrast: 7 },
+  4: {
+    ...swatchDefaults(),
+    parentId: "0",
+    contrast: 2,
+    adjustHswl: { h: 20, s: -0.4, wl: 0 },
+  },
+  5: {
+    ...swatchDefaults(),
+    parentId: "4",
+    contrast: 4.5,
+    adjustHswl: { h: 0, s: 0.1, wl: 0 },
+  },
+  6: {
+    ...swatchDefaults(),
+    parentId: "4",
+    contrast: 3,
+    adjustHswl: { h: 90, s: 0.3, wl: 0 },
+  },
+  7: { ...swatchDefaults(), parentId: "6", contrast: 5 },
 };
+
+// compute swatches for the first render
 const initialSwatches = reducer(setupInit, {
   type: "derive_children",
   id: "0",
@@ -228,10 +252,20 @@ export default function App() {
     ...activeParent?.hswl,
   };
 
-  const bgColor = swatches["0"]?.hswl ?? swatchDefaults.hswl;
-  const textAColor = swatches["1"]?.hswl ?? swatchDefaults.hswl;
-  const textAAColor = swatches["2"]?.hswl ?? swatchDefaults.hswl;
-  const textAAAColor = swatches["3"]?.hswl ?? swatchDefaults.hswl;
+  const palette1 = {
+    background: toHex(swatches["0"].hswl),
+    textA: toHex(swatches["1"].hswl),
+    textAA: toHex(swatches["2"].hswl),
+    textAAA: toHex(swatches["3"].hswl),
+    bgWell: toHex(swatches["4"].hswl),
+    bgWellText: toHex(swatches["5"].hswl),
+    button: toHex(swatches["6"].hswl),
+    buttonText: toHex(swatches["7"].hswl),
+    // these derived colors are used in minor interface details and so are
+    //  excluded from the user's swatches to reduce clutter
+    buttonDisabled: toHex(swatches["4"].hswl),
+    buttonTextDisabled: toHex(derive(swatches["4"].hswl, { contrast: 3 })),
+  };
   let nextId = Object.keys(swatches).length;
 
   const handleSwatchClick = (id) => {
@@ -245,92 +279,103 @@ export default function App() {
   // todo separate text tags from swatch components
   return (
     <ThemeProvider theme={theme}>
-      <div className="App">
-        <h1>Instint</h1>
+      <GlobalStyles
+        styles={{
+          body: { backgroundColor: palette1.bgWell },
+        }}
+      />
+      <h1>Instint</h1>
 
-        <Card
-          variant="outlined"
-          sx={{ minWidth: 275, width: 500 }}
-          style={{
-            background: toHex(bgColor),
-            border: `1px ${toHex(textAAAColor)} solid`,
-            outline: `1px ${toHex(textAColor)} solid`,
-          }}
-        >
-          <CardContent>
-            <Typography
-              sx={{ fontSize: 28 }}
-              style={{
-                color: toHex(textAColor),
-              }}
-              gutterBottom
-            >
-              Welcome to Instint!
-            </Typography>
-            <Typography
-              sx={{ fontSize: 18 }}
-              style={{
-                color: toHex(textAAColor),
-              }}
-              gutterBottom
-            >
-              Here to help designers pair text and background colors that are
-              both beautiful and easy to read
-            </Typography>
-            <Typography
-              sx={{ fontSize: 14 }}
-              style={{
-                color: toHex(textAAAColor),
-              }}
-              gutterBottom
-            >
-              Instint can take any color and generate analogous colors that
-              satisfy WCAG 2.1 contrast ratio requirements. This means that you
-              no longer need to fiddle with finicky formulae to create perfect
-              color palettes.
-            </Typography>
-          </CardContent>
-        </Card>
+      <Card
+        variant="outlined"
+        sx={{ minWidth: 275, width: 500 }}
+        style={{
+          background: palette1.background,
+          border: `1px ${palette1.textAAA} solid`,
+          outline: `1px ${palette1.textA} solid`,
+        }}
+      >
+        <CardContent>
+          <Typography
+            variant="h2"
+            style={{
+              color: palette1.textA,
+            }}
+            gutterBottom
+          >
+            Welcome to Instint!
+          </Typography>
+          <Typography
+            variant="h5"
+            style={{
+              color: palette1.textAA,
+            }}
+            gutterBottom
+          >
+            Here to help designers pair text and background colors that are both
+            beautiful and easy to read
+          </Typography>
+          <Typography
+            variant="body1"
+            style={{
+              color: palette1.textAAA,
+            }}
+            gutterBottom
+          >
+            Instint can take any color and generate analogous colors that
+            satisfy WCAG 2.1 contrast ratio requirements. This means that you no
+            longer need to fiddle with finicky formulae to create perfect color
+            palettes.
+          </Typography>
+        </CardContent>
+      </Card>
 
-        {/* create new swatch button */}
-        <Button variant="contained" onClick={handleNewSwatchClick}>
-          Add Swatch
-        </Button>
+      {/* new swatch button */}
+      <Button
+        variant="contained"
+        onClick={handleNewSwatchClick}
+        style={{ background: palette1.button, color: palette1.buttonText }}
+      >
+        Add Swatch
+      </Button>
 
-        <Button
-          variant="contained"
-          onClick={(e) => dispatch({ type: "random_color", id: swatchId })}
-        >
-          Randomize Color
-        </Button>
+      {/* randomize button */}
+      <Button
+        variant="contained"
+        onClick={(e) => dispatch({ type: "random_color", id: swatchId })}
+        style={{ background: palette1.button, color: palette1.buttonText }}
+      >
+        Randomize Color
+      </Button>
 
-        <Grid
-          container
-          rowSpacing={0.6}
-          columnSpacing={0.7}
-          sx={{ margin: "15px 0" }}
-        >
-          {Object.keys(swatches).map((id) => {
-            return (
-              <Grid key={id} xs={4} sm={3} md={2} xl={1}>
-                <Swatch
-                  id={id}
-                  hswl={swatches[id].hswl}
-                  active={id === swatchId}
-                  onClick={handleSwatchClick}
-                />
-              </Grid>
-            );
-          })}
-        </Grid>
+      {/* swatches */}
+      <Grid
+        container
+        rowSpacing={0.6}
+        columnSpacing={0.7}
+        sx={{ margin: "15px 0" }}
+      >
+        {Object.keys(swatches).map((id) => {
+          return (
+            <Grid key={id} xs={4} sm={3} md={2} xl={1}>
+              <Swatch
+                id={id}
+                hswl={swatches[id].hswl}
+                active={id === swatchId}
+                onClick={handleSwatchClick}
+              />
+            </Grid>
+          );
+        })}
+      </Grid>
 
-        <PaletteColorPicker
-          swatch={activeSwatch}
-          swatchId={swatchId}
-          parentHswl={parentHswl}
-          dispatch={dispatch}
-        />
-      </div>
+      <PaletteColorPicker
+        swatch={activeSwatch}
+        swatchId={swatchId}
+        parentHswl={parentHswl}
+        palette={palette1}
+        dispatch={dispatch}
+      />
     </ThemeProvider>
   );
 }

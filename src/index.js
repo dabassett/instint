@@ -6,6 +6,6 @@ const root = createRoot(document.getElementById("root"));
 
 root.render(
   <StrictMode>
-    <App name="Instint" />
+    <App />
   </StrictMode>,
 );

@@ -283,6 +283,8 @@ export default function App() {
     //  excluded from the user's swatches to reduce clutter
     buttonDisabled: toHex(swatches["4"].hswl),
     buttonTextDisabled: toHex(derive(swatches["4"].hswl, { contrast: 3 })),
+    logoText1: toHex(derive(swatches["4"].hswl, { contrast: 3, adjustSat: 0.3 })),
+    logoText2: toHex(derive(swatches["4"].hswl, { contrast: 3.3, adjustSat: 0.4, adjustHue: 110 })),
   };
   let nextId = Object.keys(swatches).length;
 
@@ -302,11 +304,15 @@ export default function App() {
           body: { backgroundColor: palette1.bgWell },
         }}
       />
-      <h1>Instint</h1>
+
+      <Typography variant="h1" gutterBottom >
+        <Box style={{color: palette1.logoText1, display: "inline"}}>Ins</Box>
+        <Box style={{color: palette1.logoText2, display: "inline"}}>tint</Box>
+      </Typography>
 
       <Card
         variant="outlined"
-        sx={{ minWidth: 275, width: 500 }}
+        sx={{ width: "100%" }}
         style={{
           background: palette1.background,
           border: `1px ${palette1.textAAA} solid`,
@@ -348,15 +354,6 @@ export default function App() {
         </CardContent>
       </Card>
 
-      {/* new swatch button */}
-      <Button
-        variant="contained"
-        onClick={handleNewSwatchClick}
-        style={{ background: palette1.button, color: palette1.buttonText }}
-      >
-        Add Swatch
-      </Button>
-
       {/* randomize button */}
       <Button
         variant="contained"
@@ -364,6 +361,15 @@ export default function App() {
         style={{ background: palette1.button, color: palette1.buttonText }}
       >
         Randomize Color
+      </Button>
+
+      {/* new swatch button */}
+      <Button
+        variant="contained"
+        onClick={handleNewSwatchClick}
+        style={{ background: palette1.button, color: palette1.buttonText }}
+      >
+        Add Swatch
       </Button>
 
       {/* swatches */}

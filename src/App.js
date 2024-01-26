@@ -296,7 +296,7 @@ export default function App() {
     dispatch({ type: "new_swatch", id: (nextId++).toString() });
   };
 
-  // todo separate text tags from swatch components
+  // TODO separate text tags from swatch components
   return (
     <ThemeProvider theme={theme}>
       <GlobalStyles

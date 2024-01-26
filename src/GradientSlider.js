@@ -1,6 +1,5 @@
 import Slider from "@mui/material/Slider";
-import Box from "@mui/material/Box";
-import TextField from "@mui/material/TextField";
+import Paper from "@mui/material/Paper";
 
 export default function GradientSlider({
   gradient,
@@ -9,15 +8,9 @@ export default function GradientSlider({
   label,
   ...props
 }) {
-  const textInputProps = {
-    min: props?.min ?? 0,
-    max: props?.max ?? 1,
-    step: props.step,
-    shrink: true,
-  };
-
   return (
-    <Box sx={{}}>
+    // TODO paper's height needed to be set otherwise it extended beyond the slider
+    <Paper elevation={4} sx={{ height: { xs: 31, sm: 66 } }}>
       <Slider
         {...props}
         value={value}
@@ -77,15 +70,6 @@ export default function GradientSlider({
           },
         }}
       />
-      {/*      <TextField
-        id="outlined-number"
-        label={label}
-        type="number"
-        value={value}
-        size="small"
-        onChange={props.onChange}
-        InputLabelProps={textInputProps}
-      />*/}
-    </Box>
+    </Paper>
   );
 }

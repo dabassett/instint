@@ -8,6 +8,7 @@ import Typography from "@mui/material/Typography";
 import Stack from "@mui/material/Stack";
 import Divider from "@mui/material/Divider";
 import Grid from "@mui/material/Unstable_Grid2";
+import Paper from "@mui/material/Paper";
 
 import paletteColorPickerTheme from "./PaletteColorPicker.theme.js";
 import { toHex, lerp, derive } from "./utils.js";
@@ -347,14 +348,16 @@ export default function PaletteColorPicker({
                 HUE
               </Typography>
 
-              <ToggleButtonGroup {...toggleSettings.hue}>
-                <PaletteToggleButton value="adjust" {...buttonProps}>
-                  Adj
-                </PaletteToggleButton>
-                <PaletteToggleButton value="fix" {...buttonProps}>
-                  Fix
-                </PaletteToggleButton>
-              </ToggleButtonGroup>
+              <Paper elevation={2}>
+                <ToggleButtonGroup {...toggleSettings.hue}>
+                  <PaletteToggleButton value="adjust" {...buttonProps}>
+                    Adj
+                  </PaletteToggleButton>
+                  <PaletteToggleButton value="fix" {...buttonProps}>
+                    Fix
+                  </PaletteToggleButton>
+                </ToggleButtonGroup>
+              </Paper>
             </Stack>
           </Grid>
 
@@ -372,14 +375,16 @@ export default function PaletteColorPicker({
                 SATURATION
               </Typography>
 
-              <ToggleButtonGroup {...toggleSettings.sat}>
-                <PaletteToggleButton value="adjust" {...buttonProps}>
-                  Adj
-                </PaletteToggleButton>
-                <PaletteToggleButton value="fix" {...buttonProps}>
-                  Fix
-                </PaletteToggleButton>
-              </ToggleButtonGroup>
+              <Paper elevation={2}>
+                <ToggleButtonGroup {...toggleSettings.sat}>
+                  <PaletteToggleButton value="adjust" {...buttonProps}>
+                    Adj
+                  </PaletteToggleButton>
+                  <PaletteToggleButton value="fix" {...buttonProps}>
+                    Fix
+                  </PaletteToggleButton>
+                </ToggleButtonGroup>
+              </Paper>
             </Stack>
           </Grid>
 
@@ -397,17 +402,19 @@ export default function PaletteColorPicker({
                 LUMINANCE
               </Typography>
 
-              <ToggleButtonGroup {...toggleSettings.lum}>
-                <PaletteToggleButton value="contrast" {...buttonProps}>
-                  Contrast
-                </PaletteToggleButton>
-                <PaletteToggleButton value="adjust" {...buttonProps}>
-                  Adj
-                </PaletteToggleButton>
-                <PaletteToggleButton value="fix" {...buttonProps}>
-                  Fix
-                </PaletteToggleButton>
-              </ToggleButtonGroup>
+              <Paper elevation={2}>
+                <ToggleButtonGroup {...toggleSettings.lum}>
+                  <PaletteToggleButton value="contrast" {...buttonProps}>
+                    Contrast
+                  </PaletteToggleButton>
+                  <PaletteToggleButton value="adjust" {...buttonProps}>
+                    Adj
+                  </PaletteToggleButton>
+                  <PaletteToggleButton value="fix" {...buttonProps}>
+                    Fix
+                  </PaletteToggleButton>
+                </ToggleButtonGroup>
+              </Paper>
             </Stack>
           </Grid>
 

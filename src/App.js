@@ -2,6 +2,7 @@ import { useState, useReducer } from "react";
 
 import { ThemeProvider } from "@mui/material/styles";
 import GlobalStyles from "@mui/material/GlobalStyles";
+import Container from "@mui/material/Container";
 import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Unstable_Grid2";
@@ -283,8 +284,16 @@ export default function App() {
     //  excluded from the user's swatches to reduce clutter
     buttonDisabled: toHex(swatches["4"].hswl),
     buttonTextDisabled: toHex(derive(swatches["4"].hswl, { contrast: 3 })),
-    logoText1: toHex(derive(swatches["4"].hswl, { contrast: 3, adjustSat: 0.3 })),
-    logoText2: toHex(derive(swatches["4"].hswl, { contrast: 3.3, adjustSat: 0.4, adjustHue: 110 })),
+    logoText1: toHex(
+      derive(swatches["4"].hswl, { contrast: 3, adjustSat: 0.3 }),
+    ),
+    logoText2: toHex(
+      derive(swatches["4"].hswl, {
+        contrast: 3.3,
+        adjustSat: 0.4,
+        adjustHue: 110,
+      }),
+    ),
   };
   let nextId = Object.keys(swatches).length;
 
@@ -305,101 +314,107 @@ export default function App() {
         }}
       />
 
-      <Typography variant="h1" gutterBottom >
-        <Box style={{color: palette1.logoText1, display: "inline"}}>Ins</Box>
-        <Box style={{color: palette1.logoText2, display: "inline"}}>tint</Box>
-      </Typography>
+      <Container maxWidth="lg">
+        <Typography variant="h1" gutterBottom>
+          <Box style={{ color: palette1.logoText1, display: "inline" }}>
+            Ins
+          </Box>
+          <Box style={{ color: palette1.logoText2, display: "inline" }}>
+            tint
+          </Box>
+        </Typography>
 
-      <Card
-        variant="outlined"
-        sx={{ width: "100%" }}
-        style={{
-          background: palette1.background,
-          border: `1px ${palette1.textAAA} solid`,
-          outline: `1px ${palette1.textA} solid`,
-        }}
-      >
-        <CardContent>
-          <Typography
-            variant="h2"
-            style={{
-              color: palette1.textA,
-            }}
-            gutterBottom
-          >
-            Welcome to Instint!
-          </Typography>
-          <Typography
-            variant="h5"
-            style={{
-              color: palette1.textAA,
-            }}
-            gutterBottom
-          >
-            Here to help designers pair text and background colors that are both
-            beautiful and easy to read
-          </Typography>
-          <Typography
-            variant="body1"
-            style={{
-              color: palette1.textAAA,
-            }}
-            gutterBottom
-          >
-            Instint can take any color and generate analogous colors that
-            satisfy WCAG 2.1 contrast ratio requirements. This means that you no
-            longer need to fiddle with finicky formulae to create perfect color
-            palettes.
-          </Typography>
-        </CardContent>
-      </Card>
+        <Card
+          variant="outlined"
+          sx={{ width: "100%" }}
+          style={{
+            background: palette1.background,
+            border: `1px ${palette1.textAAA} solid`,
+            outline: `1px ${palette1.textA} solid`,
+          }}
+        >
+          <CardContent>
+            <Typography
+              variant="h2"
+              style={{
+                color: palette1.textA,
+              }}
+              gutterBottom
+            >
+              Welcome to Instint!
+            </Typography>
+            <Typography
+              variant="h5"
+              style={{
+                color: palette1.textAA,
+              }}
+              gutterBottom
+            >
+              Here to help designers pair text and background colors that are
+              both beautiful and easy to read
+            </Typography>
+            <Typography
+              variant="body1"
+              style={{
+                color: palette1.textAAA,
+              }}
+              gutterBottom
+            >
+              Instint can take any color and generate analogous colors that
+              satisfy WCAG 2.1 contrast ratio requirements. This means that you
+              no longer need to fiddle with finicky formulae to create perfect
+              color palettes.
+            </Typography>
+          </CardContent>
+        </Card>
 
-      {/* randomize button */}
-      <Button
-        variant="contained"
-        onClick={(e) => dispatch({ type: "random_color", id: swatchId })}
-        style={{ background: palette1.button, color: palette1.buttonText }}
-      >
-        Randomize Color
-      </Button>
+        {/* randomize button */}
+        <Button
+          variant="contained"
+          onClick={(e) => dispatch({ type: "random_color", id: swatchId })}
+          style={{ background: palette1.button, color: palette1.buttonText }}
+        >
+          Randomize Color
+        </Button>
 
-      {/* new swatch button */}
-      <Button
-        variant="contained"
-        onClick={handleNewSwatchClick}
-        style={{ background: palette1.button, color: palette1.buttonText }}
-      >
-        Add Swatch
-      </Button>
+        {/* new swatch button */}
+        <Button
+          variant="contained"
+          onClick={handleNewSwatchClick}
+          style={{ background: palette1.button, color: palette1.buttonText }}
+        >
+          Add Swatch
+        </Button>
 
-      {/* swatches */}
-      <Grid
-        container
-        rowSpacing={0.6}
-        columnSpacing={0.7}
-        sx={{ margin: "15px 0" }}
-      >
-        {Object.keys(swatches).map((id) => {
-          return (
-            <Grid key={id} xs={4} sm={3} md={2} xl={1}>
-              <Swatch
-                id={id}
-                hswl={swatches[id].hswl}
-                active={id === swatchId}
-                onClick={handleSwatchClick}
-              />
-            </Grid>
-          );
-        })}
-      </Grid>
+        {/* swatches */}
+        <Grid
+          container
+          rowSpacing={0.6}
+          columnSpacing={0.7}
+          sx={{ margin: "15px 0" }}
+        >
+          {Object.keys(swatches).map((id) => {
+            return (
+              <Grid key={id} xs={4} sm={3} md={2} xl={1}>
+                <Swatch
+                  id={id}
+                  hswl={swatches[id].hswl}
+                  active={id === swatchId}
+                  onClick={handleSwatchClick}
+                />
+              </Grid>
+            );
+          })}
+        </Grid>
 
-      <PaletteColorPicker
-        swatch={activeSwatch}
-        swatchId={swatchId}
-        parentHswl={parentHswl}
-        palette={palette1}
-        dispatch={dispatch}
-      />
+        <PaletteColorPicker
+          swatch={activeSwatch}
+          swatchId={swatchId}
+          parentHswl={parentHswl}
+          palette={palette1}
+          dispatch={dispatch}
+        />
+      </Container>
     </ThemeProvider>
   );
 }

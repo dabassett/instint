@@ -3,7 +3,7 @@ import Card from "@mui/material/Card";
 import CardHeader from "@mui/material/CardHeader";
 import CardContent from "@mui/material/CardContent";
 import Typography from "@mui/material/Typography";
-import { CardActionArea } from '@mui/material';
+import { CardActionArea } from "@mui/material";
 
 import { derive, toHex } from "./utils.js";
 
@@ -37,6 +37,7 @@ export default function Swatch({ id, hswl, active, onClick }) {
   return (
     <ReactiveActionArea>
       <ReactiveCard
+        elevation={active ? 6 : 2}
         sx={{ width: "100%", height: 60 }}
         style={{
           background: color,

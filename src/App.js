@@ -218,7 +218,25 @@ function reducer(swatches, action) {
       nextSwatch.toggleOpts.wl = action.value;
       break;
     case "random_color":
+      // randomizes most color attributes of both parent and child swatches
+      //  contrast is never randomized so element visibility is not affected
+      //
+      // .hswl is used by parent swatches, and is restricted by default to
+      //   produce better results
       nextSwatch.hswl = randomColor();
+      // fix and adjust are only used by child swatches, so we can use the
+      //  full color space
+      nextSwatch.fixHswl = randomColor(1, {
+        s: { min: 0, max: 1 },
+        wl: { min: 0, max: 1 },
+      });
+      // attributes set to "adjust" depend on the parent swatch and must be
+      //  set to the correct ranges to prevent display issues with the sliders
+      nextSwatch.adjustHswl = randomColor(1, {
+        h: { min: -180, max: 180 },
+        s: { min: -0.3, max: 0.3 },
+        wl: { min: -0.3, max: 0.3 },
+      });
       break;
     case "new_swatch":
       // TODO hardcoded attributes

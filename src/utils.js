@@ -68,10 +68,10 @@ export function randomColor(minMaxContrast = 7, options = {}) {
   // color ranges are restricted to ensure the initial background colors
   //  are not too bland or fatiguing (like a full saturation green background)
   const opts = {
-    ...options,
     h: { min: 0, max: 360 },
     s: { min: 0.2, max: 0.8 },
     wl: { min: 0.01, max: 0.8 },
+    ...options,
   };
 
   // calculate the available luminance ranges, then select a light or dark

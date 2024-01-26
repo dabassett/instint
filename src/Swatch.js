@@ -1,9 +1,9 @@
 import { styled } from "@mui/material/styles";
 import Card from "@mui/material/Card";
-import CardHeader from "@mui/material/CardHeader";
 import CardContent from "@mui/material/CardContent";
-import Typography from "@mui/material/Typography";
 import { CardActionArea } from "@mui/material";
+import Typography from "@mui/material/Typography";
+import Grow from '@mui/material/Grow';
 
 import { derive, toHex } from "./utils.js";
 
@@ -35,33 +35,35 @@ export default function Swatch({ id, hswl, active, onClick }) {
   );
 
   return (
-    <ReactiveActionArea>
-      <ReactiveCard
-        elevation={active ? 6 : 2}
-        sx={{ width: "100%", height: 60 }}
-        style={{
-          background: color,
-          borderTop: active
-            ? `3px dotted ${textColor}`
-            : "3px dotted transparent",
-          borderBottom: active
-            ? `3px dotted ${textColor}`
-            : "3px dotted transparent",
-        }}
-        onClick={() => onClick(id)}
-      >
-        <CardContent>
-          <Typography
-            variant="h6"
-            style={{
-              color: textColor,
-            }}
-            gutterBottom
-          >
-            {color}
-          </Typography>
-        </CardContent>
-      </ReactiveCard>
-    </ReactiveActionArea>
+    <Grow in>
+      <ReactiveActionArea>
+        <ReactiveCard
+          elevation={active ? 6 : 2}
+          sx={{ width: "100%", height: 60 }}
+          style={{
+            background: color,
+            borderTop: active
+              ? `3px dotted ${textColor}`
+              : "3px dotted transparent",
+            borderBottom: active
+              ? `3px dotted ${textColor}`
+              : "3px dotted transparent",
+          }}
+          onClick={() => onClick(id)}
+        >
+          <CardContent>
+            <Typography
+              variant="h6"
+              style={{
+                color: textColor,
+              }}
+              gutterBottom
+            >
+              {color}
+            </Typography>
+          </CardContent>
+        </ReactiveCard>
+      </ReactiveActionArea>
+    </Grow>
   );
 }

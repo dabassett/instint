@@ -27,7 +27,7 @@ export default function GradientSlider({
             height: { xs: 35, sm: 70 },
             width: 20,
             border: "1px solid black",
-            outline: "1px solid white",
+            outline: "1px solid #ccc",
             borderRadius: "inherit",
             "&:focus, &:hover, &.Mui-active, &.Mui-focusVisible": {
               boxShadow: "inherit",

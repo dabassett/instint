@@ -3,7 +3,7 @@ import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import { CardActionArea } from "@mui/material";
 import Typography from "@mui/material/Typography";
-import Grow from '@mui/material/Grow';
+import Grow from "@mui/material/Grow";
 
 import { derive, toHex } from "./utils.js";
 
@@ -13,20 +13,28 @@ const ReactiveCard = styled(Card)`
     transition: ${theme.transitions.create(["background-color", "transform"], {
       duration: theme.transitions.duration.shorter,
     })};
-
   `}
 `;
 
-const ReactiveActionArea = styled(CardActionArea)`
-  ${({ theme }) => `
-    transition: ${theme.transitions.create(["transform"], {
-      duration: theme.transitions.duration.shorter,
-    })};
-    &:hover {
-      transform: scale(1.05);
-    }
-  `}
-`;
+const ReactiveActionArea = styled(CardActionArea)(({ theme }) => ({
+  transition: theme.transitions.create(["transform"], {
+    duration: theme.transitions.duration.shorter,
+  }),
+
+  // TODO remove !important tag
+  //   specificity suggestions mentioned here:
+  //    -> https://mui.com/material-ui/customization/how-to-customize/
+  //   ...have not worked
+  //
+  //   Somewhere in the MUI pipeline the element is directly styled
+  //    with `transition: none`, it could be a limitation of this
+  //    component
+  //   Also tried putting the transform under the sx prop without success
+  //   The element is given class .MuiCardActionArea-root
+  "&:hover": {
+    transform: "scale(1.05) !important",
+  },
+}));
 
 export default function Swatch({ id, hswl, active, onClick }) {
   const color = toHex(hswl);

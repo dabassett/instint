@@ -5,18 +5,19 @@ import GlobalStyles from "@mui/material/GlobalStyles";
 import Container from "@mui/material/Container";
 import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
+import Stack from "@mui/material/Stack";
 import Grid from "@mui/material/Unstable_Grid2";
 import Button from "@mui/material/Button";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
+import Fab from "@mui/material/Fab";
+
+import RefreshIcon from "@mui/icons-material/Refresh";
 
 import theme from "./App.theme.js";
 import { randomColor, derive, toHex } from "./utils.js";
 import Swatch from "./Swatch.js";
 import PaletteColorPicker from "./PaletteColorPicker.js";
-
-// TODO install material icons
-//      https://mui.com/material-ui/getting-started/installation/#icons
 
 // TODO swatch keys should be a uuid, (immutable, unique) to prevent unnecessary rerenders
 
@@ -66,37 +67,36 @@ const swatchDefaults = () => {
 
 // configure the initial swatches, child swatch colors will be calculated from
 //  their parent swatch
-const setupInit = {
-  0: { ...swatchDefaults(), hswl: randomColor() },
-  1: { ...swatchDefaults(), parentId: "0", contrast: 3.5 },
-  2: { ...swatchDefaults(), parentId: "0", contrast: 5 },
-  3: { ...swatchDefaults(), parentId: "0", contrast: 7 },
-  4: {
-    ...swatchDefaults(),
-    parentId: "0",
-    contrast: 2,
-    adjustHswl: { h: 20, s: -0.4, wl: 0 },
-  },
-  5: {
-    ...swatchDefaults(),
-    parentId: "4",
-    contrast: 4.5,
-    adjustHswl: { h: 0, s: 0.1, wl: 0 },
-  },
-  6: {
-    ...swatchDefaults(),
-    parentId: "4",
-    contrast: 3,
-    adjustHswl: { h: 90, s: 0.3, wl: 0 },
-  },
-  7: { ...swatchDefaults(), parentId: "6", contrast: 5 },
-};
+function getInitialPalette() {
+  const swatches = {
+    0: { ...swatchDefaults(), hswl: randomColor() },
+    1: { ...swatchDefaults(), parentId: "0", contrast: 3.5 },
+    2: { ...swatchDefaults(), parentId: "0", contrast: 5 },
+    3: { ...swatchDefaults(), parentId: "0", contrast: 7 },
+    4: {
+      ...swatchDefaults(),
+      parentId: "0",
+      contrast: 2,
+      adjustHswl: { h: 20, s: -0.4, wl: 0 },
+    },
+    5: {
+      ...swatchDefaults(),
+      parentId: "4",
+      contrast: 4.5,
+      adjustHswl: { h: 0, s: 0.1, wl: 0 },
+    },
+    6: {
+      ...swatchDefaults(),
+      parentId: "4",
+      contrast: 3,
+      adjustHswl: { h: 90, s: 0.3, wl: 0 },
+    },
+    7: { ...swatchDefaults(), parentId: "6", contrast: 5 },
+  };
 
-// compute swatches for the first render
-const initialSwatches = reducer(setupInit, {
-  type: "derive_children",
-  id: "0",
-});
+  // compute swatches for the first render
+  return reducer(swatches, { type: "derive_children" });
+}
 
 // transform the swatch's state into options for utils.derive
 function swatchOptions(swatch) {
@@ -170,11 +170,18 @@ function deriveChildColors(swatchId, nextSwatches) {
 }
 
 function reducer(swatches, action) {
-  let nextSwatch = { ...swatches[action.id] };
+  // default to first swatch if none is provided
+  const id = action.id ?? "0";
+  let nextSwatch = { ...swatches[id] };
+  let nextSwatches = { ...swatches };
 
   switch (action.type) {
     case "derive_children":
       // used during init to calculate the dependent swatch color
+      break;
+    case "refresh":
+      // a refresh overwrites all swatches
+      nextSwatches = action.value;
       break;
     case "changed_hue":
       nextSwatch.hswl.h = action.value;
@@ -252,17 +259,18 @@ function reducer(swatches, action) {
       throw Error("Unknown action: " + action.type);
   }
 
-  let nextSwatches = {
-    ...swatches,
-    [action.id]: nextSwatch,
-  };
-  nextSwatches = deriveChildColors(action.id, nextSwatches);
+  if (action.type !== "refresh") nextSwatches[id] = nextSwatch;
+  nextSwatches = deriveChildColors(id, nextSwatches);
   return nextSwatches;
 }
 
 export default function App() {
   const [swatchId, setSwatchId] = useState("0");
-  const [swatches, dispatch] = useReducer(reducer, initialSwatches);
+  const [swatches, dispatch] = useReducer(reducer, getInitialPalette());
+  const [previewRefresh, setPreviewRefresh] = useState({
+    ...swatchDefaults(),
+    hswl: randomColor(),
+  });
 
   const activeSwatch = swatches[swatchId];
   const activeParent = swatches[activeSwatch.parentId];
@@ -297,6 +305,23 @@ export default function App() {
   };
   let nextId = Object.keys(swatches).length;
 
+  const previewPalette = {
+    background: toHex(previewRefresh.hswl),
+    color: toHex(derive(previewRefresh.hswl, { contrast: 3 })),
+  };
+
+  // refreshes the entire color palette and all user changes
+  const handleRefreshClick = (id) => {
+    const nextSwatches = getInitialPalette();
+    // applying the preview color as the base for the new palette
+    nextSwatches["0"] = previewRefresh;
+    dispatch({ type: "refresh", value: nextSwatches });
+    setPreviewRefresh({ ...swatchDefaults(), hswl: randomColor() });
+    // refreshing removes custom swatches, so the currently selected swatch
+    //  must be reset
+    setSwatchId("0");
+  };
+
   const handleSwatchClick = (id) => {
     setSwatchId(id);
   };
@@ -315,14 +340,25 @@ export default function App() {
       />
 
       <Container maxWidth="lg">
-        <Typography variant="h1" gutterBottom>
-          <Box style={{ color: palette1.logoText1, display: "inline" }}>
-            Ins
-          </Box>
-          <Box style={{ color: palette1.logoText2, display: "inline" }}>
-            tint
-          </Box>
-        </Typography>
+        <Stack direction="row">
+          <Typography variant="h1" gutterBottom>
+            <Box style={{ color: palette1.logoText1, display: "inline" }}>
+              Ins
+            </Box>
+            <Box style={{ color: palette1.logoText2, display: "inline" }}>
+              tint
+            </Box>
+          </Typography>
+
+          {/* new palette button */}
+          <Fab
+            onClick={handleRefreshClick}
+            style={previewPalette}
+            aria-label="Reset"
+          >
+            <RefreshIcon fontSize="large" />
+          </Fab>
+        </Stack>
 
         <Card
           variant="outlined"

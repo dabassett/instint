@@ -4,6 +4,31 @@ import tinycolor from "tinycolor";
 //  and is the best test to sort light and dark colors
 const MID_RELATIVE_LUMINANCE = 0.1791104;
 
+const bestInitialBackgroundColors = [
+  // dark blue and pink
+  { h: 205, s: 0.7, wl: 0.03 },
+  // green and chocolate
+  { h: 28, s: 0.49, wl: 0.07 },
+  // dark teal and mauve
+  { h: 177, s: 0.49, wl: 0.05 },
+  // mint and purple
+  { h: 173, s: 0.54, wl: 0.85 },
+  // desaturated amber
+  { h: 50, s: 0.53, wl: 0.68 },
+  // desaturated dark yellow green
+  { h: 85, s: 0.3, wl: 0.05 },
+  // blacklight purple and orange sherbert
+  { h: 264, s: 0.74, wl: 0.005 },
+  // dark forest green
+  { h: 124, s: 0.45, wl: 0.02 },
+  // light purple and rust
+  { h: 261, s: 0.2, wl: 0.87 },
+  // light saturated blue and magenta
+  { h: 196, s: 0.62, wl: 0.87 },
+  // blood red
+  { h: 357, s: 0.61, wl: 0.04 },
+];
+
 // returns a new HSWL color from combining a source color and applying the
 //  transforms provided in opts
 //
@@ -85,6 +110,14 @@ export function randomColor(minMaxContrast = 7, options = {}) {
     s: Math.round(randomRange(opts.s.min, opts.s.max) * 100) / 100,
     wl: Math.round(luminance * 100) / 100,
   };
+}
+
+// returns a background color for the palette generator from a list of
+//  colors that tested best. Used to maximize first impressions
+export function randomColorFirstLoad() {
+  return bestInitialBackgroundColors[
+    Math.floor(Math.random() * bestInitialBackgroundColors.length)
+  ];
 }
 
 // returns an object with the luminance needed to achieve the desired

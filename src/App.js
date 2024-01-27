@@ -15,7 +15,7 @@ import Fab from "@mui/material/Fab";
 import RefreshIcon from "@mui/icons-material/Refresh";
 
 import theme from "./App.theme.js";
-import { randomColor, derive, toHex } from "./utils.js";
+import { derive, toHex, randomColor, randomColorFirstLoad } from "./utils.js";
 import Swatch from "./Swatch.js";
 import PaletteColorPicker from "./PaletteColorPicker.js";
 
@@ -69,7 +69,7 @@ const swatchDefaults = () => {
 //  their parent swatch
 function getInitialPalette() {
   const swatches = {
-    0: { ...swatchDefaults(), hswl: randomColor() },
+    0: { ...swatchDefaults(), hswl: randomColorFirstLoad() },
     1: { ...swatchDefaults(), parentId: "0", contrast: 3.5 },
     2: { ...swatchDefaults(), parentId: "0", contrast: 5 },
     3: { ...swatchDefaults(), parentId: "0", contrast: 7 },

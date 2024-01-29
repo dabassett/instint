@@ -11,6 +11,11 @@ import Button from "@mui/material/Button";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import Fab from "@mui/material/Fab";
+import Tab from "@mui/material/Tab";
+import TabContext from "@mui/lab/TabContext";
+import TabList from "@mui/lab/TabList";
+import TabPanel from "@mui/lab/TabPanel";
+import Fade from "@mui/material/Fade";
 
 import RefreshIcon from "@mui/icons-material/Refresh";
 
@@ -18,6 +23,7 @@ import theme from "./App.theme.js";
 import { derive, toHex, randomColor, randomColorFirstLoad } from "./utils.js";
 import Swatch from "./Swatch.js";
 import PaletteColorPicker from "./PaletteColorPicker.js";
+import PaletteTab from "./PaletteTab.js";
 
 // TODO swatch keys should be a uuid, (immutable, unique) to prevent unnecessary rerenders
 
@@ -271,6 +277,7 @@ export default function App() {
     ...swatchDefaults(),
     hswl: randomColor(),
   });
+  const [tabId, setTabId] = useState("0");
 
   const activeSwatch = swatches[swatchId];
   const activeParent = swatches[activeSwatch.parentId];
@@ -310,6 +317,30 @@ export default function App() {
     color: toHex(derive(previewRefresh.hswl, { contrast: 3 })),
   };
 
+  // injects palette colors into PaletteTab components
+  const paletteTabProps = {
+    dynamicStyles: {
+      selected: {
+        background: palette1.button,
+        color: palette1.buttonText,
+      },
+      unselected: {
+        background: "transparent",
+        color: palette1.bgWellText,
+      },
+    },
+  };
+
+  const cardProps = {
+    variant: "outlined",
+    sx: { width: "100%" },
+    style: {
+      background: palette1.background,
+      border: `1px ${palette1.textAAA} solid`,
+      outline: `1px ${palette1.textA} solid`,
+    },
+  };
+
   // refreshes the entire color palette and all user changes
   const handleRefreshClick = (id) => {
     const nextSwatches = getInitialPalette();
@@ -328,6 +359,10 @@ export default function App() {
 
   const handleNewSwatchClick = () => {
     dispatch({ type: "new_swatch", id: (nextId++).toString() });
+  };
+
+  const handleTabsChange = (event, newValue) => {
+    setTabId(newValue);
   };
 
   // TODO separate text tags from swatch components
@@ -360,49 +395,65 @@ export default function App() {
           </Fab>
         </Stack>
 
-        <Card
-          variant="outlined"
-          sx={{ width: "100%" }}
-          style={{
-            background: palette1.background,
-            border: `1px ${palette1.textAAA} solid`,
-            outline: `1px ${palette1.textA} solid`,
-          }}
-        >
-          <CardContent>
-            <Typography
-              variant="h2"
-              style={{
-                color: palette1.textA,
-              }}
-              gutterBottom
-            >
-              Welcome to Instint!
-            </Typography>
-            <Typography
-              variant="h5"
-              style={{
-                color: palette1.textAA,
-              }}
-              gutterBottom
-            >
-              Here to help designers pair text and background colors that are
-              both beautiful and easy to read
-            </Typography>
-            <Typography
-              variant="body1"
-              style={{
-                color: palette1.textAAA,
-              }}
-              gutterBottom
-            >
-              Instint can take any color and generate analogous colors that
-              satisfy WCAG 2.1 contrast ratio requirements. This means that you
-              no longer need to fiddle with finicky formulae to create perfect
-              color palettes.
-            </Typography>
-          </CardContent>
-        </Card>
+        <TabContext value={tabId}>
+          <TabList
+            onChange={handleTabsChange}
+            TabIndicatorProps={{
+              style: { backgroundColor: palette1.buttonText },
+            }}
+          >
+            <PaletteTab label="Welcome" value="0" {...paletteTabProps} />
+            <PaletteTab label="How To" value="1" {...paletteTabProps} />
+          </TabList>
+          <TabPanel value="0">
+            <Fade in>
+              <Card {...cardProps}>
+                <CardContent>
+                  <Typography
+                    variant="h2"
+                    style={{ color: palette1.textA }}
+                    gutterBottom
+                  >
+                    Welcome to Instint!
+                  </Typography>
+                  <Typography
+                    variant="h5"
+                    style={{ color: palette1.textAA }}
+                    gutterBottom
+                  >
+                    Here to help designers pair text and background colors that
+                    are both beautiful and easy to read
+                  </Typography>
+                  <Typography
+                    variant="body1"
+                    style={{ color: palette1.textAAA }}
+                    gutterBottom
+                  >
+                    Instint can take any color and generate analogous colors that
+                    satisfy WCAG 2.1 contrast ratio requirements. This means that
+                    you no longer need to fiddle with finicky formulae to create
+                    perfect color palettes.
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Fade>
+          </TabPanel>
+          <TabPanel value="1">
+            <Fade in>
+              <Card {...cardProps}>
+                <CardContent>
+                  <Typography
+                    variant="h2"
+                    style={{ color: palette1.textA }}
+                    gutterBottom
+                  >
+                    How To Use Instint:
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Fade>
+          </TabPanel>
+        </TabContext>
 
         {/* randomize button */}
         <Button

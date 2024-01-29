@@ -1,5 +1,9 @@
 import { createTheme } from "@mui/material/styles";
 
+const defaults = {
+  borderRadius: 2,
+};
+
 const theme = createTheme({
   palette: {
     mode: "light",
@@ -11,12 +15,9 @@ const theme = createTheme({
     },
   },
   typography: {
-    fontFamily: [
-      "Raleway",
-      '"Helvetica Neue"',
-      "Arial",
-      "sans-serif"
-    ].join(",",),
+    fontFamily: ["Raleway", '"Helvetica Neue"', "Arial", "sans-serif"].join(
+      ",",
+    ),
     fontWeightLight: 100,
     fontWeightRegular: 300,
     fontWeightMedium: 500,
@@ -84,7 +85,6 @@ const theme = createTheme({
     },
   },
   components: {
-
     MuiStack: {
       defaultProps: {
         useFlexGap: true,
@@ -92,21 +92,28 @@ const theme = createTheme({
     },
     MuiSlider: {
       styleOverrides: {
-        root: {}
+        root: {},
       },
     },
     MuiButton: {
       styleOverrides: {
         root: {
-          borderRadius: 2,
-        }
+          borderRadius: defaults.borderRadius,
+        },
       },
     },
     MuiCard: {
       styleOverrides: {
         root: {
-          borderRadius: 2,
-        }
+          borderRadius: defaults.borderRadius,
+        },
+      },
+    },
+    MuiTab: {
+      styleOverrides: {
+        root: {
+          borderRadius: defaults.borderRadius,
+        },
       },
     },
   },

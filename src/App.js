@@ -16,10 +16,12 @@ import TabContext from "@mui/lab/TabContext";
 import TabList from "@mui/lab/TabList";
 import TabPanel from "@mui/lab/TabPanel";
 import Fade from "@mui/material/Fade";
+import AppBar from "@mui/material/AppBar";
 
 import RefreshIcon from "@mui/icons-material/Refresh";
 
 import theme from "./App.theme.js";
+import Layout from "./Layout.js";
 import { derive, toHex, randomColor, randomColorFirstLoad } from "./utils.js";
 import Swatch from "./Swatch.js";
 import PaletteColorPicker from "./PaletteColorPicker.js";
@@ -150,7 +152,7 @@ function swatchOptions(swatch) {
       break;
     default:
       throw new RangeError(
-        `Unrecognized saturation option '${swatch.toggleOpts.wl}'`,
+        `Unrecognized luminance option '${swatch.toggleOpts.wl}'`,
       );
   }
 
@@ -300,13 +302,13 @@ export default function App() {
     buttonDisabled: toHex(swatches["4"].hswl),
     buttonTextDisabled: toHex(derive(swatches["4"].hswl, { contrast: 3 })),
     logoText1: toHex(
-      derive(swatches["4"].hswl, { contrast: 3, adjustSat: 0.3 }),
+      derive(swatches["0"].hswl, { contrast: 5, adjustSat: 0.2 }),
     ),
     logoText2: toHex(
-      derive(swatches["4"].hswl, {
-        contrast: 3.3,
-        adjustSat: 0.4,
-        adjustHue: 110,
+      derive(swatches["0"].hswl, {
+        contrast: 5,
+        adjustSat: 0.2,
+        adjustHue: 90,
       }),
     ),
   };
@@ -365,143 +367,134 @@ export default function App() {
     setTabId(newValue);
   };
 
+  // TODO the reset button should be moved out of layout and be given it's own
+  //       fixed position
+  const ResetButton = (props) => {
+    return (
+      <Fab
+        onClick={handleRefreshClick}
+        style={previewPalette}
+        aria-label="Reset"
+        {...props}
+      >
+        <RefreshIcon fontSize="large" />
+      </Fab>
+    );
+  };
+
   // TODO separate text tags from swatch components
   return (
     <ThemeProvider theme={theme}>
-      <GlobalStyles
-        styles={{
-          body: { backgroundColor: palette1.bgWell },
-        }}
-      />
+      <Layout palette1={palette1} ResetButton={ResetButton}>
+        <Container maxWidth="lg">
+          <TabContext value={tabId}>
+            <TabList
+              onChange={handleTabsChange}
+              TabIndicatorProps={{
+                style: { backgroundColor: palette1.buttonText },
+              }}
+            >
+              <PaletteTab label="Welcome" value="0" {...paletteTabProps} />
+              <PaletteTab label="How To" value="1" {...paletteTabProps} />
+            </TabList>
+            <TabPanel value="0">
+              <Fade in>
+                <Card {...cardProps}>
+                  <CardContent>
+                    <Typography
+                      variant="h2"
+                      style={{ color: palette1.textA }}
+                      gutterBottom
+                    >
+                      Welcome to Instint!
+                    </Typography>
+                    <Typography
+                      variant="h5"
+                      style={{ color: palette1.textAA }}
+                      gutterBottom
+                    >
+                      Here to help designers pair text and background colors
+                      that are both beautiful and easy to read
+                    </Typography>
+                    <Typography
+                      variant="body1"
+                      style={{ color: palette1.textAAA }}
+                      gutterBottom
+                    >
+                      Instint can take any color and generate analogous colors
+                      that satisfy WCAG 2.1 contrast ratio requirements. This
+                      means that you no longer need to fiddle with finicky
+                      formulae to create perfect color palettes.
+                    </Typography>
+                  </CardContent>
+                </Card>
+              </Fade>
+            </TabPanel>
+            <TabPanel value="1">
+              <Fade in>
+                <Card {...cardProps}>
+                  <CardContent>
+                    <Typography
+                      variant="h2"
+                      style={{ color: palette1.textA }}
+                      gutterBottom
+                    >
+                      How To Use Instint:
+                    </Typography>
+                  </CardContent>
+                </Card>
+              </Fade>
+            </TabPanel>
+          </TabContext>
 
-      <Container maxWidth="lg">
-        <Stack direction="row">
-          <Typography variant="h1" gutterBottom>
-            <Box style={{ color: palette1.logoText1, display: "inline" }}>
-              Ins
-            </Box>
-            <Box style={{ color: palette1.logoText2, display: "inline" }}>
-              tint
-            </Box>
-          </Typography>
-
-          {/* new palette button */}
-          <Fab
-            onClick={handleRefreshClick}
-            style={previewPalette}
-            aria-label="Reset"
+          {/* randomize button */}
+          <Button
+            variant="contained"
+            onClick={(e) => dispatch({ type: "random_color", id: swatchId })}
+            style={{ background: palette1.button, color: palette1.buttonText }}
           >
-            <RefreshIcon fontSize="large" />
-          </Fab>
-        </Stack>
+            Randomize Color
+          </Button>
 
-        <TabContext value={tabId}>
-          <TabList
-            onChange={handleTabsChange}
-            TabIndicatorProps={{
-              style: { backgroundColor: palette1.buttonText },
-            }}
+          {/* new swatch button */}
+          <Button
+            variant="contained"
+            onClick={handleNewSwatchClick}
+            style={{ background: palette1.button, color: palette1.buttonText }}
           >
-            <PaletteTab label="Welcome" value="0" {...paletteTabProps} />
-            <PaletteTab label="How To" value="1" {...paletteTabProps} />
-          </TabList>
-          <TabPanel value="0">
-            <Fade in>
-              <Card {...cardProps}>
-                <CardContent>
-                  <Typography
-                    variant="h2"
-                    style={{ color: palette1.textA }}
-                    gutterBottom
-                  >
-                    Welcome to Instint!
-                  </Typography>
-                  <Typography
-                    variant="h5"
-                    style={{ color: palette1.textAA }}
-                    gutterBottom
-                  >
-                    Here to help designers pair text and background colors that
-                    are both beautiful and easy to read
-                  </Typography>
-                  <Typography
-                    variant="body1"
-                    style={{ color: palette1.textAAA }}
-                    gutterBottom
-                  >
-                    Instint can take any color and generate analogous colors that
-                    satisfy WCAG 2.1 contrast ratio requirements. This means that
-                    you no longer need to fiddle with finicky formulae to create
-                    perfect color palettes.
-                  </Typography>
-                </CardContent>
-              </Card>
-            </Fade>
-          </TabPanel>
-          <TabPanel value="1">
-            <Fade in>
-              <Card {...cardProps}>
-                <CardContent>
-                  <Typography
-                    variant="h2"
-                    style={{ color: palette1.textA }}
-                    gutterBottom
-                  >
-                    How To Use Instint:
-                  </Typography>
-                </CardContent>
-              </Card>
-            </Fade>
-          </TabPanel>
-        </TabContext>
+            Add Swatch
+          </Button>
 
-        {/* randomize button */}
-        <Button
-          variant="contained"
-          onClick={(e) => dispatch({ type: "random_color", id: swatchId })}
-          style={{ background: palette1.button, color: palette1.buttonText }}
-        >
-          Randomize Color
-        </Button>
+          {/* swatches */}
+          <Grid
+            container
+            rowSpacing={0.6}
+            columnSpacing={0.7}
+            sx={{ margin: "15px 0" }}
+          >
+            {Object.keys(swatches).map((id) => {
+              return (
+                <Grid key={id} xs={4} sm={3} md={2}>
+                  <Swatch
+                    id={id}
+                    hswl={swatches[id].hswl}
+                    active={id === swatchId}
+                    onClick={handleSwatchClick}
+                  />
+                </Grid>
+              );
+            })}
+          </Grid>
 
-        {/* new swatch button */}
-        <Button
-          variant="contained"
-          onClick={handleNewSwatchClick}
-          style={{ background: palette1.button, color: palette1.buttonText }}
-        >
-          Add Swatch
-        </Button>
-
-        {/* swatches */}
-        <Grid
-          container
-          rowSpacing={0.6}
-          columnSpacing={0.7}
-          sx={{ margin: "15px 0" }}
-        >
-          {Object.keys(swatches).map((id) => {
-            return (
-              <Grid key={id} xs={4} sm={3} md={2} xl={1}>
-                <Swatch
-                  id={id}
-                  hswl={swatches[id].hswl}
-                  active={id === swatchId}
-                  onClick={handleSwatchClick}
-                />
-              </Grid>
-            );
-          })}
-        </Grid>
-
-        <PaletteColorPicker
-          swatch={activeSwatch}
-          swatchId={swatchId}
-          parentHswl={parentHswl}
-          palette={palette1}
-          dispatch={dispatch}
-        />
-      </Container>
+          <PaletteColorPicker
+            swatch={activeSwatch}
+            swatchId={swatchId}
+            parentHswl={parentHswl}
+            palette={palette1}
+            dispatch={dispatch}
+          />
+        </Container>
+      </Layout>
     </ThemeProvider>
   );
 }

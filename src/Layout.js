@@ -5,7 +5,7 @@ import Box from "@mui/material/Box";
 import GlobalStyles from "@mui/material/GlobalStyles";
 import CssBaseline from "@mui/material/CssBaseline";
 
-export default function Layout({ palette1, ResetButton, children, ...props }) {
+export default function Layout({ palette1, children, ...props }) {
   return (
     <>
       <CssBaseline />
@@ -15,7 +15,7 @@ export default function Layout({ palette1, ResetButton, children, ...props }) {
         }}
       />
       <AppBar position="static" style={{ background: palette1.background }}>
-        <Toolbar variant="dense">
+        <Toolbar>
           <Typography variant="h1">
             <Box style={{ color: palette1.logoText1, display: "inline" }}>
               Ins
@@ -24,7 +24,6 @@ export default function Layout({ palette1, ResetButton, children, ...props }) {
               tint
             </Box>
           </Typography>
-          <ResetButton />
         </Toolbar>
       </AppBar>
 

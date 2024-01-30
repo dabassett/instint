@@ -1,28 +1,21 @@
 import { useState, useReducer } from "react";
 
 import { ThemeProvider } from "@mui/material/styles";
-import GlobalStyles from "@mui/material/GlobalStyles";
 import Container from "@mui/material/Container";
 import Typography from "@mui/material/Typography";
-import Box from "@mui/material/Box";
-import Stack from "@mui/material/Stack";
 import Grid from "@mui/material/Unstable_Grid2";
 import Button from "@mui/material/Button";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
-import Fab from "@mui/material/Fab";
-import Tab from "@mui/material/Tab";
 import TabContext from "@mui/lab/TabContext";
 import TabList from "@mui/lab/TabList";
 import TabPanel from "@mui/lab/TabPanel";
 import Fade from "@mui/material/Fade";
-import AppBar from "@mui/material/AppBar";
 
-import RefreshIcon from "@mui/icons-material/Refresh";
-
+import { derive, toHex, randomColor, randomColorFirstLoad } from "./utils.js";
 import theme from "./App.theme.js";
 import Layout from "./Layout.js";
-import { derive, toHex, randomColor, randomColorFirstLoad } from "./utils.js";
+import ResetButton from "./ResetButton.js";
 import Swatch from "./Swatch.js";
 import PaletteColorPicker from "./PaletteColorPicker.js";
 import PaletteTab from "./PaletteTab.js";
@@ -43,14 +36,14 @@ import PaletteTab from "./PaletteTab.js";
 
 // TODO when deleting a swatch with children set the children's native colors
 //       to their current derived colors to prevent them from changing suddenly
-//       and inform them with a small infobox
+//       and inform the user with a small infobox
 
 // TODO features
+// - palette dump to plaintext css and json
 // - warning icons and descriptions when colors don't satisfy contrast requirements
 // - swatch names
 //   - then, create the palette object in a constructor, building from the existing names
 //     and programmatically assign names and non-swatch colors
-// - palette dump to plaintext css and json
 // - multiple palettes for more page variety
 // - configurable inheritance
 
@@ -367,26 +360,12 @@ export default function App() {
     setTabId(newValue);
   };
 
-  // TODO the reset button should be moved out of layout and be given it's own
-  //       fixed position
-  const ResetButton = (props) => {
-    return (
-      <Fab
-        onClick={handleRefreshClick}
-        style={previewPalette}
-        aria-label="Reset"
-        {...props}
-      >
-        <RefreshIcon fontSize="large" />
-      </Fab>
-    );
-  };
-
   // TODO separate text tags from swatch components
   return (
     <ThemeProvider theme={theme}>
-      <Layout palette1={palette1} ResetButton={ResetButton}>
+      <Layout palette1={palette1}>
         <Container maxWidth="lg">
+          <ResetButton onClick={handleRefreshClick} style={previewPalette} />
           <TabContext value={tabId}>
             <TabList
               onChange={handleTabsChange}

@@ -10,6 +10,7 @@ import CardContent from "@mui/material/CardContent";
 import TabContext from "@mui/lab/TabContext";
 import TabList from "@mui/lab/TabList";
 import TabPanel from "@mui/lab/TabPanel";
+import Stack from "@mui/material/Stack";
 import Fade from "@mui/material/Fade";
 
 import { derive, toHex, randomColor, randomColorFirstLoad } from "./utils.js";
@@ -376,7 +377,7 @@ export default function App() {
               <PaletteTab label="Welcome" value="0" {...paletteTabProps} />
               <PaletteTab label="How To" value="1" {...paletteTabProps} />
             </TabList>
-            <TabPanel value="0">
+            <TabPanel value="0" sx={{ my: 3, p: 0 }}>
               <Fade in>
                 <Card {...cardProps}>
                   <CardContent>
@@ -409,7 +410,7 @@ export default function App() {
                 </Card>
               </Fade>
             </TabPanel>
-            <TabPanel value="1">
+            <TabPanel value="1" sx={{ my: 3, p: 0 }}>
               <Fade in>
                 <Card {...cardProps}>
                   <CardContent>
@@ -426,31 +427,35 @@ export default function App() {
             </TabPanel>
           </TabContext>
 
-          {/* randomize button */}
-          <Button
-            variant="contained"
-            onClick={(e) => dispatch({ type: "random_color", id: swatchId })}
-            style={{ background: palette1.button, color: palette1.buttonText }}
-          >
-            Randomize Color
-          </Button>
+          <Stack direction="row" spacing={3} justifyContent="flex-end">
+            {/* randomize button */}
+            <Button
+              size="largea"
+              variant="contained"
+              onClick={(e) => dispatch({ type: "random_color", id: swatchId })}
+              style={{
+                background: palette1.button,
+                color: palette1.buttonText,
+              }}
+            >
+              Randomize Color
+            </Button>
 
-          {/* new swatch button */}
-          <Button
-            variant="contained"
-            onClick={handleNewSwatchClick}
-            style={{ background: palette1.button, color: palette1.buttonText }}
-          >
-            Add Swatch
-          </Button>
+            {/* new swatch button */}
+            <Button
+              variant="contained"
+              onClick={handleNewSwatchClick}
+              style={{
+                background: palette1.button,
+                color: palette1.buttonText,
+              }}
+            >
+              Add Swatch
+            </Button>
+          </Stack>
 
           {/* swatches */}
-          <Grid
-            container
-            rowSpacing={0.6}
-            columnSpacing={0.7}
-            sx={{ margin: "15px 0" }}
-          >
+          <Grid container rowSpacing={0.6} columnSpacing={0.7} sx={{ my: 3 }}>
             {Object.keys(swatches).map((id) => {
               return (
                 <Grid key={id} xs={4} sm={3} md={2}>

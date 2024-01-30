@@ -5,6 +5,7 @@ const defaults = {
 };
 
 const theme = createTheme({
+  spacing: 8,
   palette: {
     mode: "light",
     primary: {
@@ -112,7 +113,7 @@ const theme = createTheme({
     MuiTab: {
       styleOverrides: {
         root: {
-          borderRadius: defaults.borderRadius,
+          borderRadius: 0,
         },
       },
     },

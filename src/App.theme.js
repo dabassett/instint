@@ -27,21 +27,25 @@ const theme = createTheme({
       fontWeight: 100,
     },
     h2: {
-      fontWeight: 100,
+      fontWeight: 200,
     },
     h3: {
-      fontWeight: 100,
+      fontWeight: 200,
     },
     h4: {
-      fontWeight: 100,
+      fontWeight: 300,
     },
     h5: {
-      fontWeight: 300,
+      fontWeight: 400,
     },
     h6: {
-      fontWeight: 300,
+      fontWeight: 500,
     },
     body1: {
+      fontSize: 17,
+      fontWeight: 500,
+    },
+    body2: {
       fontWeight: 500,
     },
   },

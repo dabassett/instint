@@ -1,8 +1,8 @@
 {
   "name": "instint",
   "version": "0.1.0",
-  "homepage": "https://dabassett.github.io/instint",
-  "private": true,
+  "homepage": ".",
+  "private": false,
   "dependencies": {
     "@emotion/react": "^11.11.3",
     "@emotion/styled": "^11.11.0",
@@ -54,7 +54,7 @@
     "eslint-config-react-app": "^7.0.1",
     "eslint-plugin-react": "^7.33.2",
     "eslint-plugin-react-hooks": "^4.6.0",
-    "gh-pages": "^6.0.0",
+    "gh-pages": "^6.1.1",
     "prettier": "^3.1.1"
   }
 }

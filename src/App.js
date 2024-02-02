@@ -315,6 +315,7 @@ export default function App() {
 
   // injects palette colors into PaletteTab components
   const paletteTabProps = {
+    sx: { paddingTop: 6 },
     dynamicStyles: {
       selected: {
         background: palette1.button,

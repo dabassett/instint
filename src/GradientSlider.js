@@ -1,6 +1,16 @@
 import Slider from "@mui/material/Slider";
 import Paper from "@mui/material/Paper";
 
+// calculate related element heights
+const height = {
+  slider: { xs: 30, sm: 65 },
+};
+height.paper = height.slider;
+height.thumb = {
+  xs: height.slider.xs + 15,
+  sm: height.slider.sm + 15,
+};
+
 export default function GradientSlider({
   gradient,
   color,
@@ -10,25 +20,34 @@ export default function GradientSlider({
 }) {
   return (
     // TODO paper's height needed to be set otherwise it extended beyond the slider
-    <Paper elevation={4} sx={{ height: { xs: 31, sm: 66 } }}>
+    // TODO replace with vanilla box shadow
+    //       after working with it further, it's clear this isn't the correct usage
+    //       of paper and it was a coincidence that it mostly worked
+    <Paper elevation={4} sx={{ height: height.paper }}>
       <Slider
         {...props}
         value={value}
         track={false}
         valueLabelDisplay="auto"
         sx={{
+          // override some default styles that resize the slider's padding
+          //  for mobile devices
+          paddingY: 0,
+          "@media (pointer: coarse)": {
+            paddingY: 0,
+          },
           borderRadius: "2px",
-          height: { xs: 5, sm: 40 },
+          height: height.slider,
 
           "& .MuiSlider-rail": {
             visibility: "hidden",
           },
           "& .MuiSlider-thumb": {
-            height: { xs: 35, sm: 70 },
+            height: height.thumb,
             width: 20,
             border: "1px solid black",
             outline: "1px solid #ccc",
-            borderRadius: "inherit",
+            borderRadius: "100px",
             "&:focus, &:hover, &.Mui-active, &.Mui-focusVisible": {
               boxShadow: "inherit",
             },

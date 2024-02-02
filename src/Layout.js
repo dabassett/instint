@@ -28,6 +28,24 @@ export default function Layout({ palette1, children, ...props }) {
       </AppBar>
 
       {children}
+
+      <Box
+        sx={{
+          minHeight: "8rem",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "flex-end",
+          alignItems: "center",
+        }}
+      >
+        <Typography
+          variant="subtitle2"
+          sx={{ marginBottom: "1rem" }}
+          style={{ color: palette1.bgWellTextSubtle }}
+        >
+          © 2024 D·A·Bassett
+        </Typography>
+      </Box>
     </>
   );
 }

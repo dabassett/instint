@@ -305,6 +305,9 @@ export default function App() {
         adjustHue: 90,
       }),
     ),
+    bgWellTextSubtle: toHex(
+      derive(swatches["5"].hswl, { contrast: 2 }),
+    ),
   };
   let nextId = Object.keys(swatches).length;
 

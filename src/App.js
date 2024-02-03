@@ -305,9 +305,7 @@ export default function App() {
         adjustHue: 90,
       }),
     ),
-    bgWellTextSubtle: toHex(
-      derive(swatches["5"].hswl, { contrast: 2 }),
-    ),
+    bgWellTextSubtle: toHex(derive(swatches["5"].hswl, { contrast: 2 })),
   };
   let nextId = Object.keys(swatches).length;
 
@@ -323,6 +321,13 @@ export default function App() {
       selected: {
         background: palette1.button,
         color: palette1.buttonText,
+        // an inset box shadow helps sell the illusion of depth, as the tabs
+        //  sit directly under the navbar
+        boxShadow: [
+          "inset 0px 2px 4px -1px rgba(0,0,0,0.2)",
+          "inset 0px 4px 5px 0px rgba(0,0,0,0.14)",
+          "inset 0px 1px 10px 0px rgba(0,0,0,0.12)",
+        ].join(", "),
       },
       unselected: {
         background: "transparent",

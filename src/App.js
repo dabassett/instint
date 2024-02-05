@@ -16,10 +16,14 @@ import Fade from "@mui/material/Fade";
 import { derive, toHex, randomColor, randomColorFirstLoad } from "./utils.js";
 import theme from "./App.theme.js";
 import Layout from "./Layout.js";
+import { PaletteContext } from "./Contexts.js";
 import ResetButton from "./ResetButton.js";
 import Swatch from "./Swatch.js";
 import PaletteColorPicker from "./PaletteColorPicker.js";
 import PaletteTab from "./PaletteTab.js";
+import WelcomeTab from "./content/WelcomeTab.js";
+import HowToTab from "./content/HowToTab.js";
+import AboutTab from "./content/AboutTab.js";
 
 // TODO swatch keys should be a uuid, (immutable, unique) to prevent unnecessary rerenders
 
@@ -52,7 +56,7 @@ const swatchDefaults = () => {
   return {
     // this swatch's hue, saturation and WCAG luminance
     hswl: { h: 0, s: 0, wl: 0 },
-    // inherit one or more color attribute from this swatch
+    // inherit one or more color attributes from this swatch
     parentId: null,
     // attempt to achieve this contrast ratio with parent swatch
     contrast: 1,
@@ -373,247 +377,103 @@ export default function App() {
   // TODO separate text tags from swatch components
   return (
     <ThemeProvider theme={theme}>
-      <Layout palette1={palette1}>
-        <Container maxWidth="lg">
-          <ResetButton onClick={handleRefreshClick} style={previewPalette} />
-          <TabContext value={tabId}>
-            <TabList
-              onChange={handleTabsChange}
-              TabIndicatorProps={{
-                style: { backgroundColor: palette1.buttonText },
-              }}
-            >
-              <PaletteTab label="Welcome" value="0" {...paletteTabProps} />
-              <PaletteTab label="How To" value="1" {...paletteTabProps} />
-              <PaletteTab label="About" value="2" {...paletteTabProps} />
-            </TabList>
-            <TabPanel value="0" sx={{ my: 3, p: 0 }}>
-              <Fade in>
-                <Card {...cardProps}>
-                  <CardContent>
-                    <Typography
-                      variant="h3"
-                      style={{ color: palette1.textA }}
-                      gutterBottom
-                    >
-                      Welcome!
-                    </Typography>
-                    <Typography
-                      variant="h5"
-                      style={{ color: palette1.textAA }}
-                      gutterBottom
-                    >
-                      All of the colors you see were derived automatically from
-                      the background color in this box.
-                    </Typography>
-                    <Typography
-                      variant="body1"
-                      style={{ color: palette1.textAAA }}
-                      gutterBottom
-                    >
-                      Try it out! Click the refresh button above to roll a whole
-                      new look, or use the color controls at the bottom to
-                      fine-tune your own design.
-                    </Typography>
-                  </CardContent>
-                </Card>
-              </Fade>
-            </TabPanel>
-            <TabPanel value="1" sx={{ my: 3, p: 0 }}>
-              <Fade in>
-                <Card {...cardProps}>
-                  <CardContent>
-                    <Typography
-                      variant="h3"
-                      style={{ color: palette1.textA }}
-                      gutterBottom
-                    >
-                      How To Use Instint:
-                    </Typography>
-                    <Typography
-                      variant="body1"
-                      style={{ color: palette1.textAAA }}
-                      gutterBottom
-                    >
-                      For best results turn off your blue light filter and any
-                      browser extensions that might interfere with
-                      Instint&apos;s colors.
-                    </Typography>
-                    <Typography
-                      variant="h5"
-                      style={{ color: palette1.textAA }}
-                      gutterBottom
-                      sx={{ mt: 3 }}
-                    >
-                      Resetting
-                    </Typography>
-                    <Typography
-                      variant="body1"
-                      style={{ color: palette1.textAAA }}
-                      gutterBottom
-                    >
-                      Clicking the refresh button at the top of the page will
-                      erase any changes and build a new palette. Use it when you
-                      need to start fresh.
-                    </Typography>
-                    <Typography
-                      variant="h5"
-                      style={{ color: palette1.textAA }}
-                      gutterBottom
-                      sx={{ mt: 3 }}
-                    >
-                      Editing Swatches
-                    </Typography>
-                    <Typography
-                      variant="body1"
-                      style={{ color: palette1.textAAA }}
-                      gutterBottom
-                    >
-                      Click a swatch from the list to select it and use the
-                      sliders at the bottom to edit its hue, saturation, and
-                      luminance attributes.
-                    </Typography>
-                    <Typography
-                      variant="h5"
-                      style={{ color: palette1.textAA }}
-                      gutterBottom
-                      sx={{ mt: 3 }}
-                    >
-                      Swatch Inheritance
-                    </Typography>
-                    <Typography
-                      variant="body1"
-                      style={{ color: palette1.textAAA }}
-                      gutterBottom
-                    >
-                      Most swatches are inheriting their attributes from the
-                      first one in the palette. Editing a parent swatch will
-                      automatically update all of its children.
-                    </Typography>
-                    <Typography
-                      variant="h5"
-                      style={{ color: palette1.textAA }}
-                      gutterBottom
-                      sx={{ mt: 3 }}
-                    >
-                      Inheritance Modes
-                    </Typography>
-                    <Typography
-                      variant="body1"
-                      style={{ color: palette1.textAAA }}
-                      gutterBottom
-                    >
-                      Child swatches have additional settings that appear next
-                      to their attributes. These control how parent and child
-                      swatches&apos; attributes are combined.
-                    </Typography>
-                    <Typography
-                      variant="h6"
-                      style={{ color: palette1.textAA }}
-                      gutterBottom
-                      sx={{ mt: 1 }}
-                    >
-                      Adjust (ADJ)
-                    </Typography>
-                    <Typography
-                      variant="body1"
-                      style={{ color: palette1.textAAA }}
-                      gutterBottom
-                    >
-                      The child&apos;s value is added to the parent&apos;s.
-                    </Typography>
-                    <Typography
-                      variant="h6"
-                      style={{ color: palette1.textAA }}
-                      gutterBottom
-                      sx={{ mt: 1 }}
-                    >
-                      Fixed (FIX)
-                    </Typography>
-                    <Typography
-                      variant="body1"
-                      style={{ color: palette1.textAAA }}
-                      gutterBottom
-                    >
-                      Only the child&apos;s value will be used. Use fixed when
-                      you want a child swatch to ignore changes to the parent
-                      for one or more attributes.
-                    </Typography>
-                    <Typography
-                      variant="h6"
-                      style={{ color: palette1.textAA }}
-                      gutterBottom
-                      sx={{ mt: 1 }}
-                    >
-                      Contrast
-                    </Typography>
-                    <Typography
-                      variant="body1"
-                      style={{ color: palette1.textAAA }}
-                      gutterBottom
-                    >
-                      This setting controls the relative contrast ratio between
-                      the parent and child colors. Higher values are more
-                      suitable for smaller text. (Only applies to luminance)
-                    </Typography>
-                  </CardContent>
-                </Card>
-              </Fade>
-            </TabPanel>
-          </TabContext>
+      <PaletteContext.Provider value={palette1}>
+        <Layout palette1={palette1}>
+          <Container maxWidth="lg">
+            <ResetButton onClick={handleRefreshClick} style={previewPalette} />
+            <TabContext value={tabId}>
+              <TabList
+                onChange={handleTabsChange}
+                TabIndicatorProps={{
+                  style: { backgroundColor: palette1.buttonText },
+                }}
+              >
+                <PaletteTab label="Welcome" value="0" {...paletteTabProps} />
+                <PaletteTab label="How To" value="1" {...paletteTabProps} />
+                <PaletteTab label="About" value="2" {...paletteTabProps} />
+              </TabList>
+              <TabPanel value="0" sx={{ my: 3, p: 0 }}>
+                <Fade in>
+                  <Card {...cardProps}>
+                    <CardContent>
+                      <WelcomeTab />
+                    </CardContent>
+                  </Card>
+                </Fade>
+              </TabPanel>
+              <TabPanel value="1" sx={{ my: 3, p: 0 }}>
+                <Fade in>
+                  <Card {...cardProps}>
+                    <CardContent>
+                      <HowToTab />
+                    </CardContent>
+                  </Card>
+                </Fade>
+              </TabPanel>
+              <TabPanel value="2" sx={{ my: 3, p: 0 }}>
+                <Fade in>
+                  <Card {...cardProps}>
+                    <CardContent>
+                      <AboutTab />
+                    </CardContent>
+                  </Card>
+                </Fade>
+              </TabPanel>
+            </TabContext>
 
-          <Stack direction="row" spacing={3} justifyContent="flex-end">
-            {/* randomize button */}
-            <Button
-              size="largea"
-              variant="contained"
-              onClick={(e) => dispatch({ type: "random_color", id: swatchId })}
-              style={{
-                background: palette1.button,
-                color: palette1.buttonText,
-              }}
-            >
-              Randomize Color
-            </Button>
+            <Stack direction="row" spacing={3} justifyContent="flex-end">
+              {/* randomize button */}
+              <Button
+                size="largea"
+                variant="contained"
+                onClick={(e) => dispatch({ type: "random_color", id: swatchId })}
+                style={{
+                  background: palette1.button,
+                  color: palette1.buttonText,
+                }}
+              >
+                Randomize Color
+              </Button>
 
-            {/* new swatch button */}
-            <Button
-              variant="contained"
-              onClick={handleNewSwatchClick}
-              style={{
-                background: palette1.button,
-                color: palette1.buttonText,
-              }}
-            >
-              Add Swatch
-            </Button>
-          </Stack>
+              {/* new swatch button */}
+              <Button
+                variant="contained"
+                onClick={handleNewSwatchClick}
+                style={{
+                  background: palette1.button,
+                  color: palette1.buttonText,
+                }}
+              >
+                Add Swatch
+              </Button>
+            </Stack>
 
-          {/* swatches */}
-          <Grid container rowSpacing={0.6} columnSpacing={0.7} sx={{ my: 3 }}>
-            {Object.keys(swatches).map((id) => {
-              return (
-                <Grid key={id} xs={4} sm={3} md={2}>
-                  <Swatch
-                    id={id}
-                    hswl={swatches[id].hswl}
-                    active={id === swatchId}
-                    onClick={handleSwatchClick}
-                  />
-                </Grid>
-              );
-            })}
-          </Grid>
+            {/* swatches */}
+            <Grid container rowSpacing={0.6} columnSpacing={0.7} sx={{ my: 3 }}>
+              {Object.keys(swatches).map((id) => {
+                return (
+                  <Grid key={id} xs={4} sm={3} md={2}>
+                    <Swatch
+                      id={id}
+                      hswl={swatches[id].hswl}
+                      active={id === swatchId}
+                      onClick={handleSwatchClick}
+                    />
+                  </Grid>
+                );
+              })}
+            </Grid>
 
-          <PaletteColorPicker
-            swatch={activeSwatch}
-            swatchId={swatchId}
-            parentHswl={parentHswl}
-            palette={palette1}
-            dispatch={dispatch}
-          />
-        </Container>
-      </Layout>
+            <PaletteColorPicker
+              swatch={activeSwatch}
+              swatchId={swatchId}
+              parentHswl={parentHswl}
+              palette={palette1}
+              dispatch={dispatch}
+            />
+          </Container>
+        </Layout>
+      </PaletteContext.Provider>
     </ThemeProvider>
   );
 }

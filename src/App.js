@@ -432,7 +432,7 @@ export default function App() {
                   color: palette1.buttonText,
                 }}
               >
-                Randomize Color
+                Randomize Swatch
               </Button>
 
               {/* new swatch button */}

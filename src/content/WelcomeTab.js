@@ -12,8 +12,15 @@ export default function WelcomeTab() {
       <Typography variant="h3" style={{ color: palette.textA }} gutterBottom>
         Welcome!
       </Typography>
-      <Typography variant="h5" style={{ color: palette.textAA }} gutterBottom>
-        All of the colors you see were derived automatically from the background
+      <Typography
+        variant="h4"
+        style={{ color: palette.textAA }}
+        gutterBottom
+      >
+        Instint is the one-click color designer.
+      </Typography>
+      <Typography variant="h6" style={{ color: palette.textAA }} gutterBottom>
+        Every color on this page was derived automatically from the background
         color in this box.
       </Typography>
       <Typography

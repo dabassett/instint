@@ -264,7 +264,7 @@ const getGradient = (
   attr = "wl",
   begin = null,
   end = null,
-  numStops = 16,
+  numStops = 36,
 ) => {
   // sensible default interpolation ranges for each attribute type
   const rangeDefaults = {

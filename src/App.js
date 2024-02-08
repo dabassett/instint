@@ -379,7 +379,7 @@ export default function App() {
   return (
     <ThemeProvider theme={theme}>
       <PaletteContext.Provider value={palette1}>
-        <Layout palette1={palette1}>
+        <Layout>
           <Container maxWidth="lg">
             <ResetButton onClick={handleRefreshClick} style={previewPalette} />
             <TabContext value={tabId}>

@@ -1,6 +1,10 @@
 import { useContext } from "react";
 
 import Typography from "@mui/material/Typography";
+import Link from "@mui/material/Link";
+
+import List from "@mui/material/List";
+import ListItemText from "@mui/material/ListItemText";
 
 import { PaletteContext } from "../Contexts.js";
 
@@ -18,13 +22,27 @@ export default function AboutTab() {
         gutterBottom
       >
         Instint is a color design tool that solves two interrelated problems:
-        <ul>
-          <li>Rapidly prototyping an entire site&apos;s color theme</li>
-          <li>
-            Making that design accessible according to the WCAG 2 standards for
-            color contrast
-          </li>
-        </ul>
+      </Typography>
+      <List sx={{ listStyleType: "disc" }}>
+        <ListItemText
+          sx={{ ml: 4, display: "list-item" }}
+          style={{ color: palette.textAAA }}
+        >
+          Rapidly prototyping an entire site&apos;s color theme
+        </ListItemText>
+        <ListItemText
+          sx={{ ml: 4, display: "list-item" }}
+          style={{ color: palette.textAAA }}
+        >
+          Ensuring that text is as readable according to the WCAG 2 standards for
+          color contrast
+        </ListItemText>
+      </List>
+      <Typography
+        variant="body1"
+        style={{ color: palette.textAAA }}
+        gutterBottom
+      >
         Designers and developers alike struggle with color design because, for
         such a complex, nuanced topic, the majority of resources and tools
         available are basic and inadequate. My goal with Instint is to help fill
@@ -63,8 +81,8 @@ export default function AboutTab() {
       >
         HSWL stands for Hue, Saturation, WCAG Luminance. By replacing the
         lightness dimension of HSL with relative luminance, it becomes possible
-        to simply calculate a new color with a specific contrast to an
-        existing one.
+        to simply calculate a new color with a specific contrast to an existing
+        one.
       </Typography>
       <Typography
         variant="h6"
@@ -79,16 +97,51 @@ export default function AboutTab() {
         style={{ color: palette.textAAA }}
         gutterBottom
       >
-        The Web Content and Accessibility Guidelines (WCAG) are a collection of
-        standards used to help ensure that the web is functional and accessible
-        for everyone. Among them are guidelines for evaluating if a particular
-        text color is readable on a particular background color. Here you will
-        find formulas for relative luminance and contrast ratio.
-        <ul>
-          <li>1.4.1 Use of Color</li>
-          <li>1.4.3 Contrast (Minimum)</li>
-          <li>1.4.6 Contrast (Enhanced)</li>
-        </ul>
+        The{" "}
+        <Link
+          href="https://en.wikipedia.org/wiki/Web_Content_Accessibility_Guidelines"
+          style={{ color: palette.linkAAA }}
+          target="_blank"
+        >
+          Web Content and Accessibility Guidelines (WCAG)
+        </Link>{" "}
+        are a collection of standards used to help ensure that the web is
+        functional and accessible for everyone. Among them are guidelines for
+        evaluating if a particular text color is readable on a particular
+        background color. Here you will find formulas for relative luminance and
+        contrast ratio.
+      </Typography>
+      <List sx={{ listStyleType: "disc" }}>
+        <ListItemText
+          sx={{ ml: 4, display: "list-item" }}
+          style={{ color: palette.textAAA }}
+        >
+          <Link
+            href="https://www.w3.org/WAI/WCAG22/Understanding/contrast-minimum.html"
+            style={{ color: palette.linkAAA }}
+            target="_blank"
+          >
+            1.4.3 Contrast (Minimum)
+          </Link>
+        </ListItemText>
+        <ListItemText
+          sx={{ ml: 4, display: "list-item" }}
+          style={{ color: palette.textAAA }}
+        >
+          <Link
+            href="https://www.w3.org/WAI/WCAG21/Understanding/contrast-enhanced"
+            style={{ color: palette.linkAAA }}
+            target="_blank"
+          >
+            1.4.6 Contrast (Enhanced)
+          </Link>
+        </ListItemText>
+      </List>
+      <Typography
+        variant="body1"
+        style={{ color: palette.textAAA }}
+        gutterBottom
+      >
         The relative luminance formula is a reasonably close approximation for
         how the human eye perceives a color&apos;s brightness. Unfortunately
         using it is cumbersome in practice because (before HSWL) there was no
@@ -109,9 +162,9 @@ export default function AboutTab() {
         style={{ color: palette.textAAA }}
         gutterBottom
       >
-        Intint&apos;s palette is unique because it defines relationships between
-        colors. Each swatch may have one parent and any number of children,
-        forming an inheritance tree.
+        Instint&apos;s palette is unique because it defines relationships
+        between colors. Each swatch may have one parent and any number of
+        children, forming an inheritance tree.
       </Typography>
       <Typography
         variant="body1"
@@ -145,7 +198,7 @@ export default function AboutTab() {
       >
         I first designed HSWL in 2015, and since then there have been many
         developments in web color design. Notably OKLab, which has greatly
-        improved on older color models, and WCAG 3 has amended....
+        improved on older color models, ...
       </Typography>*/}
     </>
   );

@@ -121,6 +121,16 @@ let theme = createTheme({
         },
       },
     },
+    MuiLink: {
+      styleOverrides: {
+        root: {
+          textDecoration: "underline currentColor",
+          ":hover": {
+            textDecoration: "none",
+          },
+        },
+      },
+    },
   },
 });
 

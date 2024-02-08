@@ -310,6 +310,7 @@ export default function App() {
       }),
     ),
     bgWellTextSubtle: toHex(derive(swatches["5"].hswl, { contrast: 2 })),
+    linkAAA: toHex({ ...swatches["7"].hswl, wl: swatches["3"].hswl.wl }),
   };
   let nextId = Object.keys(swatches).length;
 
@@ -426,7 +427,9 @@ export default function App() {
               <Button
                 size="largea"
                 variant="contained"
-                onClick={(e) => dispatch({ type: "random_color", id: swatchId })}
+                onClick={(e) =>
+                  dispatch({ type: "random_color", id: swatchId })
+                }
                 style={{
                   background: palette1.button,
                   color: palette1.buttonText,

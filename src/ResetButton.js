@@ -19,7 +19,7 @@ export default function ResetButton({ ...props }) {
           zIndex: 1,
           top: -30,
           left: { xs: "auto", sm: 0 },
-          right: { xs: 50, sm: 0 },
+          right: { xs: 30, sm: 0 },
           margin: "0 auto",
         }}
         aria-label="Reset"

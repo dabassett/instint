@@ -1,70 +1,59 @@
-# Getting Started with Create React App
+# Instint - The one-click color designer
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Instint is a free, open-source tool for rapidly prototyping your site's color
+theme. Starting with a single background color it **automatically generates the
+rest of the palette**.
 
-## Available Scripts
+Instint also **continuously applies your palette to itself** so you can
+experiment freely and see the results immediately.
 
-In the project directory, you can run:
+#### [Try Instint now](https://dabassett.github.io/instint/)
 
-### `npm start`
+Designers and developers alike struggle with color because, for
+such a complex, nuanced topic, the majority of resources and tools
+available are simply inadequate. As a result much of the internet is,
+frankly, visually boring. My goal with Instint is to make color design
+fun again.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## How Does It Work?
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+Instint is driven by two key innovations. To directly compute new colors
+from existing ones I created HSWL, a perceptual color space based on the
+WCAG relative luminance formula. I also built a reactive palette, to
+continuously update the site's color theme as you make changes.
 
-### `npm test`
+### HSWL
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+HSWL stands for Hue, Saturation, WCAG Luminance. By replacing the
+lightness dimension of HSL with *relative luminance*, it becomes possible
+to simply calculate a new color with a specific contrast to an existing
+one.
 
-### `npm run build`
+#### What Is Relative Luminance?
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+Relative luminance is defined in the [Web Content and Accessibility Guidelines](https://en.wikipedia.org/wiki/Web_Content_Accessibility_Guidelines),
+a collection of standards used to help ensure that the web is functional and
+accessible for everyone. Among them are the formulas for relative luminance and
+contrast ratio, used to evaluate if a particular text color is readable on a
+particular background color.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+- [1.4.3 Contrast - Minimum](https://www.w3.org/WAI/WCAG22/Understanding/contrast-minimum.html)
+- [1.4.6 Contrast - Enhanced](https://www.w3.org/WAI/WCAG21/Understanding/contrast-enhanced)
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+The relative luminance formula is a reasonably close approximation for how the
+human eye perceives a color's brightness. Unfortunately using it is cumbersome
+in practice because (before HSWL) there was no way to directly transform a
+color's relative luminance in the typical RGB, HSL, or HSV color spaces.
 
-### `npm run eject`
+### Reactive Palette
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+Instint's palette is unique because it defines relationships
+between colors. Each swatch may have one parent and any number of
+children, forming an inheritance tree.
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+Child swatches inherit their parent's hue, saturation, and
+luminance and then apply their own adjustments to those attributes to
+compute their final color.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+When a swatch is changed, Instint propagates those changes down through
+the tree and then rerenders the page with updated colors.

@@ -18,35 +18,33 @@ export default function AboutTab() {
       </Typography>
       <Typography
         variant="body1"
+        sx={{ mb: 3 }}
         style={{ color: palette.textAAA }}
         gutterBottom
       >
-        Instint is a color design tool that solves two interrelated problems:
+        Instint is a free, open-source tool for rapidly prototyping your
+        site&apos;s color theme. Starting with a single background color it
+        automatically generates the rest of the palette.
       </Typography>
-      <List sx={{ listStyleType: "disc" }}>
-        <ListItemText
-          sx={{ ml: 4, display: "list-item" }}
-          style={{ color: palette.textAAA }}
-        >
-          Rapidly prototyping an entire site&apos;s color theme
-        </ListItemText>
-        <ListItemText
-          sx={{ ml: 4, display: "list-item" }}
-          style={{ color: palette.textAAA }}
-        >
-          Ensuring that text is as readable according to the WCAG 2 standards for
-          color contrast
-        </ListItemText>
-      </List>
       <Typography
         variant="body1"
+        sx={{ mb: 3 }}
         style={{ color: palette.textAAA }}
         gutterBottom
       >
-        Designers and developers alike struggle with color design because, for
-        such a complex, nuanced topic, the majority of resources and tools
-        available are basic and inadequate. My goal with Instint is to help fill
-        that gap.
+        Instint also continuously applies your palette to itself so you can
+        experiment freely and see the results immediately.
+      </Typography>
+      <Typography
+        variant="body1"
+        sx={{ mb: 3 }}
+        style={{ color: palette.textAAA }}
+        gutterBottom
+      >
+        Designers and developers alike struggle with color because, for such a
+        complex, nuanced topic, the majority of resources and tools available
+        are simply inadequate. As a result much of the internet is, frankly,
+        visually boring. My goal with Instint is to make color design fun again.
       </Typography>
       <Typography
         variant="h5"
@@ -159,6 +157,7 @@ export default function AboutTab() {
       </Typography>
       <Typography
         variant="body1"
+        sx={{ mb: 3 }}
         style={{ color: palette.textAAA }}
         gutterBottom
       >
@@ -168,6 +167,7 @@ export default function AboutTab() {
       </Typography>
       <Typography
         variant="body1"
+        sx={{ mb: 3 }}
         style={{ color: palette.textAAA }}
         gutterBottom
       >
@@ -177,10 +177,11 @@ export default function AboutTab() {
       </Typography>
       <Typography
         variant="body1"
+        sx={{ mb: 3 }}
         style={{ color: palette.textAAA }}
         gutterBottom
       >
-        When a swatch is changed, Instint propogates those changes down through
+        When a swatch is changed, Instint propagates those changes down through
         the tree and then rerenders the page with updated colors.
       </Typography>
       {/*      <Typography

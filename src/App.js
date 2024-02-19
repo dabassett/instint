@@ -437,7 +437,6 @@ export default function App() {
             <Stack direction="row" spacing={3} justifyContent="flex-end">
               {/* randomize button */}
               <Button
-                size="largea"
                 variant="contained"
                 onClick={(e) =>
                   dispatch({ type: "random_color", id: swatchId })

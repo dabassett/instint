@@ -25,32 +25,43 @@ import WelcomeTab from "./content/WelcomeTab.js";
 import HowToTab from "./content/HowToTab.js";
 import AboutTab from "./content/AboutTab.js";
 
-// TODO swatch keys should be a uuid, (immutable, unique) to prevent unnecessary rerenders
-
-// TODO - if I get around to adding inheritance chains, don't forget to traverse
-//         up the tree to check for inheritance cycles
-//        - could also detect cycles by counting, if the count
-//      - also, inheritance will require some restructuring, as there are problems
-//         with ordering in the render stage
-//        - if a root swatch is updated, then descendent swatches must be
-//           updated in order of their depedency since their results depend on
-//           on the immediate parent
-//        - solution: store derived colors in state, rather than calculating
-//           in the render stage. Store child ids and use a queue to process
-//           new colors in the correct order
-
-// TODO when deleting a swatch with children set the children's native colors
-//       to their current derived colors to prevent them from changing suddenly
-//       and inform the user with a small infobox
+// Hello, Welcome, and thank you for checking out Instint's source code!
+//
+// This project is under heavy active development so expect to see many major
+//  changes to the codebase in the coming weeks. Below is a little preview
+//  of the planned changes.
 
 // TODO features
 // - palette dump to plaintext css and json
+// - show swatch names
+// - highlight selected swatch's parent + children swatches
+// - slider stops for important values
+//   - A, AA, AAA contrast values
+//   - luminance midpoint (0.17...)
+//   - parent's 0 value for childrens' adjust sliders
 // - warning icons and descriptions when colors don't satisfy contrast requirements
-// - swatch names
-//   - then, create the palette object in a constructor, building from the existing names
-//     and programmatically assign names and non-swatch colors
-// - multiple palettes for more page variety
+//   - necessitates a robust profiling of the contrast error range and
+//      acceptable drift from the nominal value
+//   - see if (+0.01, -0) contrast error is possible to ensure that instint's
+//      colors won't fail for another WCAG compliance checker
+// - tooltips / aria labels needed for most controls, prioritize color picker
+//    inheritance settings as they'll be most confusing for new users
+// - more default palettes for common use cases
+//   - one with typical gradient structure and primary, secondary, etc. naming
 // - configurable inheritance
+// - delete user created swatches
+//   - when deleting a swatch with children set the children's native colors
+//      to their current derived colors to prevent them from changing suddenly
+//      and inform the user with a small infobox
+
+// TODO refactors
+// - extract Palette component from App
+// - move PaletteColorPicker gradient calculator to the GradientSlider
+// - switch to useContext hook for palette colors in the following components:
+//   - PaletteColorPicker
+//   - PaletteTab
+//   - PaletteToggleButton
+// - detailed comment for deriveChildColors() operation
 
 const swatchDefaults = () => {
   return {
@@ -75,29 +86,29 @@ const swatchDefaults = () => {
 //  their parent swatch
 function getInitialPalette() {
   const swatches = {
-    0: { ...swatchDefaults(), hswl: randomColorFirstLoad() },
-    1: { ...swatchDefaults(), parentId: "0", contrast: 3.5 },
-    2: { ...swatchDefaults(), parentId: "0", contrast: 5 },
-    3: { ...swatchDefaults(), parentId: "0", contrast: 7 },
-    4: {
+    background: { ...swatchDefaults(), hswl: randomColorFirstLoad() },
+    textA: { ...swatchDefaults(), parentId: "background", contrast: 3.5 },
+    textAA: { ...swatchDefaults(), parentId: "background", contrast: 5 },
+    textAAA: { ...swatchDefaults(), parentId: "background", contrast: 7 },
+    bgWell: {
       ...swatchDefaults(),
-      parentId: "0",
+      parentId: "background",
       contrast: 2,
       adjustHswl: { h: 20, s: -0.4, wl: 0 },
     },
-    5: {
+    bgWellText: {
       ...swatchDefaults(),
-      parentId: "4",
+      parentId: "bgWell",
       contrast: 4.5,
       adjustHswl: { h: 0, s: 0.1, wl: 0 },
     },
-    6: {
+    button: {
       ...swatchDefaults(),
-      parentId: "4",
+      parentId: "bgWell",
       contrast: 3,
       adjustHswl: { h: 90, s: 0.3, wl: 0 },
     },
-    7: { ...swatchDefaults(), parentId: "6", contrast: 5 },
+    buttonText: { ...swatchDefaults(), parentId: "button", contrast: 5 },
   };
 
   // compute swatches for the first render
@@ -177,7 +188,7 @@ function deriveChildColors(swatchId, nextSwatches) {
 
 function reducer(swatches, action) {
   // default to first swatch if none is provided
-  const id = action.id ?? "0";
+  const id = action.id ?? "background";
   let nextSwatch = { ...swatches[id] };
   let nextSwatches = { ...swatches };
 
@@ -253,11 +264,10 @@ function reducer(swatches, action) {
       });
       break;
     case "new_swatch":
-      // TODO hardcoded attributes
       nextSwatch = {
         ...swatchDefaults(),
         color: randomColor(),
-        parentId: "0",
+        parentId: "background",
       };
       break;
 
@@ -271,7 +281,7 @@ function reducer(swatches, action) {
 }
 
 export default function App() {
-  const [swatchId, setSwatchId] = useState("0");
+  const [swatchId, setSwatchId] = useState("background");
   const [swatches, dispatch] = useReducer(reducer, getInitialPalette());
   const [previewRefresh, setPreviewRefresh] = useState({
     ...swatchDefaults(),
@@ -287,30 +297,33 @@ export default function App() {
   };
 
   const palette1 = {
-    background: toHex(swatches["0"].hswl),
-    textA: toHex(swatches["1"].hswl),
-    textAA: toHex(swatches["2"].hswl),
-    textAAA: toHex(swatches["3"].hswl),
-    bgWell: toHex(swatches["4"].hswl),
-    bgWellText: toHex(swatches["5"].hswl),
-    button: toHex(swatches["6"].hswl),
-    buttonText: toHex(swatches["7"].hswl),
+    background: toHex(swatches.background.hswl),
+    textA: toHex(swatches.textA.hswl),
+    textAA: toHex(swatches.textAA.hswl),
+    textAAA: toHex(swatches.textAAA.hswl),
+    bgWell: toHex(swatches.bgWell.hswl),
+    bgWellText: toHex(swatches.bgWellText.hswl),
+    button: toHex(swatches.button.hswl),
+    buttonText: toHex(swatches.buttonText.hswl),
     // these derived colors are used in minor interface details and so are
     //  excluded from the user's swatches to reduce clutter
-    buttonDisabled: toHex(swatches["4"].hswl),
-    buttonTextDisabled: toHex(derive(swatches["4"].hswl, { contrast: 3 })),
+    buttonDisabled: toHex(swatches.bgWell.hswl),
+    buttonTextDisabled: toHex(derive(swatches.bgWell.hswl, { contrast: 3 })),
     logoText1: toHex(
-      derive(swatches["0"].hswl, { contrast: 5, adjustSat: 0.2 }),
+      derive(swatches.background.hswl, { contrast: 5, adjustSat: 0.2 }),
     ),
     logoText2: toHex(
-      derive(swatches["0"].hswl, {
+      derive(swatches.background.hswl, {
         contrast: 5,
         adjustSat: 0.2,
         adjustHue: 90,
       }),
     ),
-    bgWellTextSubtle: toHex(derive(swatches["5"].hswl, { contrast: 2 })),
-    linkAAA: toHex({ ...swatches["7"].hswl, wl: swatches["3"].hswl.wl }),
+    bgWellTextSubtle: toHex(derive(swatches.bgWellText.hswl, { contrast: 2 })),
+    linkAAA: toHex({
+      ...swatches.buttonText.hswl,
+      wl: swatches.textAAA.hswl.wl,
+    }),
   };
   let nextId = Object.keys(swatches).length;
 
@@ -355,12 +368,12 @@ export default function App() {
   const handleRefreshClick = (id) => {
     const nextSwatches = getInitialPalette();
     // applying the preview color as the base for the new palette
-    nextSwatches["0"] = previewRefresh;
+    nextSwatches["background"] = previewRefresh;
     dispatch({ type: "refresh", value: nextSwatches });
     setPreviewRefresh({ ...swatchDefaults(), hswl: randomColor() });
     // refreshing removes custom swatches, so the currently selected swatch
     //  must be reset
-    setSwatchId("0");
+    setSwatchId("background");
   };
 
   const handleSwatchClick = (id) => {
@@ -368,14 +381,13 @@ export default function App() {
   };
 
   const handleNewSwatchClick = () => {
-    dispatch({ type: "new_swatch", id: (nextId++).toString() });
+    dispatch({ type: "new_swatch", id: `Swatch-${nextId++}` });
   };
 
   const handleTabsChange = (event, newValue) => {
     setTabId(newValue);
   };
 
-  // TODO separate text tags from swatch components
   return (
     <ThemeProvider theme={theme}>
       <PaletteContext.Provider value={palette1}>
